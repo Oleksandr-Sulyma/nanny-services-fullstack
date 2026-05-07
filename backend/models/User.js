@@ -2,11 +2,7 @@ import { Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    name: { type: String, required: true, trim: true },
     email: {
       type: String,
       required: true,
@@ -18,31 +14,24 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    avatar: {
-      type: String,
-      required: false,
-      default: "",
-    },
+    avatar: { type: String, default: "" },
     favorites: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "Nanny",
-        },
-      ],
+      type: [{ type: Schema.Types.ObjectId, ref: "Nanny" }],
       default: [],
     },
   },
   {
     timestamps: true,
     versionKey: false,
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret._id;
+        delete ret.passwordHash;
+        return ret;
+      },
+    },
   },
 );
-
-userSchema.methods.toJSON = function () {
-  const obj = this.toObject();
-  delete obj.passwordHash;
-  return obj;
-};
 
 export const User = model("User", userSchema);

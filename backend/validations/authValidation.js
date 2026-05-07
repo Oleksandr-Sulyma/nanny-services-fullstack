@@ -1,4 +1,5 @@
 import { Joi, Segments } from "celebrate";
+import { updateAvatar } from "../controllers/authController.js";
 
 export const registerValidation = {
   [Segments.BODY]: Joi.object().keys({
@@ -34,6 +35,15 @@ export const loginValidation = {
     }),
     password: Joi.string().required().messages({
       "any.required": "Password is a required field",
+    }),
+  }),
+};
+
+export const updateAvatarValidation = {
+  [Segments.BODY]: Joi.object().keys({
+    avatar: Joi.string().uri().required().messages({
+      "string.uri": "Avatar must be a valid URL",
+      "any.required": "Avatar URL is a required field",
     }),
   }),
 };

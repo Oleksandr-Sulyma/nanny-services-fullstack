@@ -73,20 +73,31 @@ const nannySchema = new Schema(
     rating: {
       type: Number,
       default: 0,
+      min: 0,
+      max: 5,
     },
   },
   {
     timestamps: true,
     versionKey: false,
-  },
+    toJSON: {
+      virtuals: true,
+      transform: function (doc, ret) {
+        delete ret._id;
+        return ret;
+      },
+    },
+  }
 );
 
 nannySchema.pre('save', function(next) {
-  if (this.reviews && this.reviews.length > 0) {
-    const totalRating = this.reviews.reduce((acc, review) => acc + review.rating, 0);
-    this.rating = Number((totalRating / this.reviews.length).toFixed(1));
-  } else {
-    this.rating = 0;
+  if (this.isModified('reviews')) {
+    if (this.reviews && this.reviews.length > 0) {
+      const totalRating = this.reviews.reduce((acc, review) => acc + review.rating, 0);
+      this.rating = Number((totalRating / this.reviews.length).toFixed(1));
+    } else {
+      this.rating = 0;
+    }
   }
   next();
 });
