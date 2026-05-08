@@ -52,8 +52,11 @@ export const logoutUser = (req, res) => {
   res.status(200).json({ message: "User logged out successfully" });
 };
 
-export const getCurrentUser = catchAsync(async (req, res, next) => {
+export const getCurrentUser = catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id);
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
   res.json({ data: user });
 });
 
@@ -73,5 +76,27 @@ export const updateAvatar = catchAsync(async (req, res) => {
   res.status(200).json({
     message: "Avatar updated successfully",
     data: updatedUser,
+  });
+});
+
+export const updatePassword = catchAsync(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
+
+  const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);
+  if (!isMatch) {
+    throw createHttpError(401, "Old password is incorrect");
+  }
+
+  user.passwordHash = await bcrypt.hash(newPassword, 10);
+  await user.save();
+
+  res.status(200).json({
+    message: "Password updated successfully",
+    user: user.email,
   });
 });

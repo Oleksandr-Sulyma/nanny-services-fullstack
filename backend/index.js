@@ -5,7 +5,8 @@ import { connectMongoDB } from "./db/connectMongoDB.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { errors } from 'celebrate';
 import dns from "node:dns";
-import authRoutes from './routes/authRoutes.js'
+import authRoutes from './routes/authRoutes.js';
+import nannyRoutes from './routes/nannyRoutes.js';
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 dns.setDefaultResultOrder("ipv4first");
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/api/auth', authRoutes);
+app.use('/api/nannies', nannyRoutes);
 
 app.use(errors());
 
