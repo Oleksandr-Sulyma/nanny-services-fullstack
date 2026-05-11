@@ -6,26 +6,40 @@ export const getNanniesSchema = {
     page: Joi.number().integer().min(1).default(1),
     perPage: Joi.number().integer().min(3).max(20).default(3),
     sort: Joi.string()
-      .valid('a_to_z', 'z_to_a', 'popular', 'not_popular')
-      .default('a_to_z')
+      .valid("a_to_z", "z_to_a", "popular", "not_popular")
+      .default("a_to_z")
       .messages({
-        'any.only': 'Sort must be one of: a_to_z, z_to_a, popular, not_popular',
+        "any.only": "Sort must be one of: a_to_z, z_to_a, popular, not_popular",
       }),
     filter: Joi.string()
-      .valid('less_than_18', 'greater_than_18', 'show_all')
-      .default('show_all')
+      .valid("less_than_18", "greater_than_18", "show_all")
+      .default("show_all")
       .messages({
-        'any.only': 'Filter must be one of: less_than_18, greater_than_18, show_all',
+        "any.only":
+          "Filter must be one of: less_than_18, greater_than_18, show_all",
       }),
   }),
 };
 
 const objectIdValidator = (value, helpers) => {
-  return !isValidObjectId(value) ? helpers.message('Invalid ID format') : value;
+  return !isValidObjectId(value) ? helpers.message("Invalid ID format") : value;
 };
 
+const nannyIdField = Joi.string()
+  .custom(objectIdValidator)
+  .required()
+  .messages({
+    "any.required": "nannyId is a required field",
+  });
+
 export const nannyIdSchema = {
-    [Segments.PARAMS]: Joi.object({
-    nannyId: Joi.string().custom(objectIdValidator).required(),
+  [Segments.PARAMS]: Joi.object({
+    nannyId: nannyIdField,
   }),
-}
+};
+
+export const favoriteNannySchema = {
+  [Segments.BODY]: Joi.object({
+    nannyId: nannyIdField,
+  }),
+};

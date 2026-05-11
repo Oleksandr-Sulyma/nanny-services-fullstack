@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
 import { getAllNannies, getNannyById } from "../controllers/nannyController.js";
-import { getNanniesSchema, nannyIdSchema } from "../validations/nanniesValidation.js"
+import { getNanniesSchema, nannyIdSchema } from "../validations/nanniesValidation.js";
 
 const router = Router();
 

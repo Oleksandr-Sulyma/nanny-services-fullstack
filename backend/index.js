@@ -7,6 +7,7 @@ import { errors } from 'celebrate';
 import dns from "node:dns";
 import authRoutes from './routes/authRoutes.js';
 import nannyRoutes from './routes/nannyRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
 dns.setDefaultResultOrder("ipv4first");
@@ -19,6 +20,7 @@ app.use(cors());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/nannies', nannyRoutes);
+app.use('/api/users', userRoutes);
 
 app.use(errors());
 
