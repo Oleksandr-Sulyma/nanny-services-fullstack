@@ -1,11 +1,12 @@
 import bcrypt from "bcrypt";
 import createHttpError from "http-errors";
 import { User } from "../models/User.js";
+import { Nanny } from "../models/Nanny.js";
 import { createToken } from "../utils/createToken.js";
 import { catchAsync } from "../utils/catchAsync.js";
 
 export const registerUser = catchAsync(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -18,9 +19,28 @@ export const registerUser = catchAsync(async (req, res) => {
     name,
     email,
     passwordHash: hashedPassword,
+    role,
   });
 
-  res.status(201).json({ data: newUser });
+  let nanny = null;
+
+  if (role === "nanny") {
+    nanny = await Nanny.create({
+      name: newUser.name,
+      userId: newUser._id,
+      rating: 0,
+      price_per_hour: 0,
+      experience: "New",
+      reviews: [],
+    });
+  }
+
+  res.status(201).json({
+    data: {
+      user: newUser,
+      nanny,
+    },
+  });
 });
 
 export const loginUser = catchAsync(async (req, res) => {

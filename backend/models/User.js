@@ -19,6 +19,11 @@ const userSchema = new Schema(
       type: [{ type: Schema.Types.ObjectId, ref: "Nanny" }],
       default: [],
     },
+    role: {
+      type: String,
+      enum: ["parent", "nanny"],
+      required: true,
+    },
   },
   {
     timestamps: true,

@@ -27,6 +27,7 @@ export const registerUserSchema = {
     }),
     email: emailField,
     password: passwordField,
+    role: Joi.string().valid("parent", "nanny").required(),
   }),
 };
 
