@@ -1,6 +1,5 @@
 import { Schema, model } from "mongoose";
 
-(parentId, nannyId, date, status, message);
 const appointmentSchema = new Schema(
   {
     parentId: { type: Schema.Types.ObjectId, ref: "User", required: true },

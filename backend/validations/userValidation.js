@@ -1,4 +1,5 @@
 import { Joi, Segments } from "celebrate";
+import { passwordField } from "./commonValidation.js";
 
 export const updateAvatarSchema = {
   [Segments.BODY]: Joi.object({
@@ -15,16 +16,6 @@ export const updatePasswordSchema = {
       "string.empty": "Old password cannot be empty",
       "any.required": "oldPassword is a required field",
     }),
-    newPassword: Joi.string()
-      .min(8)
-      .required()
-      .pattern(/^[\x21-\x7E]+$/)
-      .messages({
-        "string.pattern.base":
-          "Password must contain only Latin letters, numbers, and symbols without spaces",
-        "string.min": "Password must be at least 8 characters long",
-        "string.empty": "Password cannot be empty",
-        "any.required": "newPassword is a required field",
-      }),
+    newPassword: passwordField,
   }),
 };

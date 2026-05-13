@@ -1,5 +1,6 @@
-import { isValidObjectId } from "mongoose";
+
 import { Joi, Segments } from "celebrate";
+import { idField } from "./commonValidation.js";
 
 export const getNanniesSchema = {
   [Segments.QUERY]: Joi.object({
@@ -21,25 +22,17 @@ export const getNanniesSchema = {
   }),
 };
 
-const objectIdValidator = (value, helpers) => {
-  return !isValidObjectId(value) ? helpers.message("Invalid ID format") : value;
-};
-
-const nannyIdField = Joi.string()
-  .custom(objectIdValidator)
-  .required()
-  .messages({
-    "any.required": "nannyId is a required field",
-  });
 
 export const nannyIdSchema = {
   [Segments.PARAMS]: Joi.object({
-    nannyId: nannyIdField,
+    nannyId: idField,
   }),
 };
 
 export const favoriteNannySchema = {
   [Segments.BODY]: Joi.object({
-    nannyId: nannyIdField,
+    nannyId: idField,
   }),
 };
+
+

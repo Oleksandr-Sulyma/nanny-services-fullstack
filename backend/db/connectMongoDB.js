@@ -6,6 +6,7 @@ export const connectMongoDB = async () => {
     
     if (!mongoUrl) {
       console.log('MONGO_URL environment variable is not defined');
+      process.exit(1); 
     }
     await mongoose.connect(mongoUrl);
     console.log('✅ MongoDB connection established successfully');

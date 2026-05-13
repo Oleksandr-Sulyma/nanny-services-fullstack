@@ -19,6 +19,7 @@ const nannySchema = new Schema(
     about: { type: String, default: "" },
     characters: { type: [String], default: [] },
     rating: { type: Number, default: 0 },
+    isProfileComplete: { type: Boolean, required: true, default: false },
   },
   {
     timestamps: true,

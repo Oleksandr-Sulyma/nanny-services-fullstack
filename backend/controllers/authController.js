@@ -32,6 +32,7 @@ export const registerUser = catchAsync(async (req, res) => {
       price_per_hour: 0,
       experience: "New",
       reviews: [],
+      isProfileComplete: false,
     });
   }
 
@@ -56,7 +57,7 @@ export const loginUser = catchAsync(async (req, res) => {
     throw createHttpError(401, "Invalid credentials");
   }
 
-  const token = createToken(user.id);
+  const token = createToken(user.id, user.role);
 
   res.status(200).json({
     message: "User logged successfully",
