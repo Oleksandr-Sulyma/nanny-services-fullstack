@@ -6,7 +6,6 @@ const nannySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
     },
     name: { type: String, required: true, trim: true },
     avatar_url: { type: String, default: "" },
@@ -34,5 +33,8 @@ const nannySchema = new Schema(
   },
 );
 
+nannySchema.index({ isProfileComplete: 1, name: 1 });
+nannySchema.index({ isProfileComplete: 1, rating: -1, name: 1 });
+nannySchema.index({ isProfileComplete: 1, price_per_hour: -1, name: 1 });
 
 export const Nanny = model("Nanny", nannySchema);

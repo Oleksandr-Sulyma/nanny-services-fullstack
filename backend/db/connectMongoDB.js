@@ -1,4 +1,5 @@
 import mongoose  from 'mongoose';
+// import { Nanny } from '../models/Nanny.js';
 
 export const connectMongoDB = async () => {
   try {
@@ -10,6 +11,10 @@ export const connectMongoDB = async () => {
     }
     await mongoose.connect(mongoUrl);
     console.log('✅ MongoDB connection established successfully');
+
+    // await Nanny.syncIndexes();
+    // console.log('Indexes synced successfully');
+    
   } catch (error) {
     console.error('❌ Failed to connect to MongoDB:', error.message);
     process.exit(1); 

@@ -24,27 +24,45 @@ export const passwordField = Joi.string()
     "any.required": "Password is a required field",
   });
 
-export const nameField = Joi.string().min(3).required().trim().messages({
+export const nameField = Joi.string()
+.min(3)
+.required()
+.trim()
+.messages({
   "string.min": "Name must be at least 3 characters long",
   "string.empty": "Name cannot be empty",
   "any.required": "Name is a required field",
 });
 
-export const commentField = Joi.string().min(3).trim().messages({
+export const commentField = Joi.string()
+.min(3)
+.trim()
+.messages({
   "string.min": "Comment must be at least 3 characters long",
   "string.empty": "Comment cannot be empty",
 });
 
+export const requiredCommentField = Joi.string()
+  .min(3)
+  .required()
+  .trim()
+  .messages({
+    "string.min": "Comment must be at least 3 characters long",
+    "string.empty": "Comment cannot be empty",
+    "any.required": "Comment is a required field",
+  });
+
 const phoneRegex = /^\+380\d{9}$/;
 
 export const phoneField = Joi.string()
-  .pattern(phoneRegex)
-  .required()
-  .messages({
-    "string.pattern.base": "Phone number must start with +380 and contain 9 digits after it (e.g., +380671234567)",
-    "string.empty": "Phone number is required",
-    "any.required": "Phone is a required field",
-  });
+.pattern(phoneRegex)
+.required()
+.messages({
+  "string.pattern.base":
+    "Phone number must start with +380 and contain 9 digits after it (e.g., +380671234567)",
+  "string.empty": "Phone number is required",
+  "any.required": "Phone is a required field",
+});
 
 const objectIdValidator = (value, helpers) => {
   return !isValidObjectId(value) ? helpers.message("Invalid ID format") : value;

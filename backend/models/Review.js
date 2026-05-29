@@ -3,24 +3,31 @@ import { Schema, model } from "mongoose";
 const reviewSchema = new Schema(
   {
     authorId: {
-      type: Schema.Types.ObjectId, ref: "User",
+      type: Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     nannyId: {
-      type: Schema.Types.ObjectId, ref: "Nanny",
+      type: Schema.Types.ObjectId,
+      ref: "Nanny",
+      required: true,
+    },
+    appointmentId: {
+      type: Schema.Types.ObjectId,
+      ref: "Appointment",
       required: true,
     },
     rating: {
       type: Number,
-      required: true, 
+      required: true,
       min: 1,
       max: 5,
     },
     comment: {
-          type: String,
-          required: true,
-          trim: true,
-        },
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
   {
     timestamps: true,
