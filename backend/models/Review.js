@@ -42,4 +42,14 @@ const reviewSchema = new Schema(
   },
 );
 
+reviewSchema.index(
+  { appointmentId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      appointmentId: { $type: "objectId" },
+    },
+  },
+);
+
 export const Review = model("Review", reviewSchema);

@@ -20,7 +20,7 @@ export const createAppointment = catchAsync(async (req, res) => {
       "Nanny profile is not available for appointments",
     );
 
-  const { parentName, email, address, phone, childAge, time, comment } =
+  const { parentName, email, address, phone, childAge, scheduledAt, comment } =
     req.body;
 
   const newAppointment = await Appointment.create({
@@ -31,7 +31,7 @@ export const createAppointment = catchAsync(async (req, res) => {
     address,
     phone,
     childAge,
-    time,
+    scheduledAt,
     comment,
   });
 
@@ -248,7 +248,7 @@ export const createReview = catchAsync(async (req, res) => {
   const updatedNanny = await Nanny.findByIdAndUpdate(
     nannyId,
     { rating: averageRating },
-    { new: true }
+    { new: true },
   );
 
   res.status(201).json({

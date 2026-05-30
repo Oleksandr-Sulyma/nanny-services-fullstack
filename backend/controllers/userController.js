@@ -1,18 +1,20 @@
 import bcrypt from "bcrypt";
 import createHttpError from "http-errors";
 import { User } from "../models/User.js";
-import { Nanny} from "../models/Nanny.js"
+import { Nanny } from "../models/Nanny.js";
 import { catchAsync } from "../utils/catchAsync.js";
 
 export const getCurrentUser = catchAsync(async (req, res) => {
-  const user = await User.findById(req.user.id).populate('favorites');
+  const user = await User.findById(req.user.id).populate({
+    path: "favorites",
+    match: { isProfileComplete: true },
+  });
 
   if (!user) {
     throw createHttpError(404, "User not found");
   }
   res.json({ data: user });
 });
-
 
 export const updateAvatar = catchAsync(async (req, res) => {
   const { avatar } = req.body;
@@ -61,16 +63,16 @@ export const toggleFavoriteNanny = catchAsync(async (req, res) => {
 
   const [user, nanny] = await Promise.all([
     User.findById(userId),
-    Nanny.findById(nannyId),
+    Nanny.findOne({ _id: nannyId, isProfileComplete: true }),
   ]);
 
   if (!user) throw createHttpError(404, "User not found");
   if (!nanny) throw createHttpError(404, "Nanny not found");
 
-  const isFavorite = user.favorites.some(id => id.equals(nannyId))
+  const isFavorite = user.favorites.some((id) => id.equals(nannyId));
 
   if (isFavorite) {
-    user.favorites = user.favorites.filter(id => !id.equals(nannyId));
+    user.favorites = user.favorites.filter((id) => !id.equals(nannyId));
   } else {
     user.favorites.push(nannyId);
   }

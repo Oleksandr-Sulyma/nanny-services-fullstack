@@ -9,7 +9,10 @@ const appointmentSchema = new Schema(
     address: { type: String, required: true, trim: true },
     phone: { type: String, required: true },
     childAge: { type: String, required: true },
-    time: { type: String, required: true },
+    scheduledAt: {
+      type: Date,
+      required: true,
+    },
     comment: { type: String, trim: true },
     status: {
       type: String,

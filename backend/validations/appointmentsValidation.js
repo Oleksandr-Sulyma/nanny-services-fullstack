@@ -22,9 +22,10 @@ export const appointmentSchema = {
       "string.empty": "Child's age cannot be empty",
       "any.required": "Child's age is a required field",
     }),
-    time: Joi.string().required().trim().messages({
-      "string.empty": "Time cannot be empty",
-      "any.required": "Time is a required field",
+    scheduledAt: Joi.date().greater("now").required().messages({
+      "date.base": "ScheduledAt must be a valid date",
+      "date.greater": "ScheduledAt must be in the future",
+      "any.required": "ScheduledAt is a required field",
     }),
     comment: commentField,
   }),

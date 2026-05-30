@@ -2,13 +2,13 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import "dotenv/config";
+import { errors } from "celebrate";
+import dns from "node:dns";
 import { connectMongoDB } from "./db/connectMongoDB.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { errors } from 'celebrate';
-import dns from "node:dns";
-import authRoutes from './routes/authRoutes.js';
-import nannyRoutes from './routes/nannyRoutes.js';
-import userRoutes from './routes/userRoutes.js';
+import authRoutes from "./routes/authRoutes.js";
+import nannyRoutes from "./routes/nannyRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 
 dns.setServers(["8.8.8.8", "1.1.1.1"]);
@@ -27,7 +27,7 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = Date.now() - startedAt;
     console.log(
-      `${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`
+      `${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`,
     );
   });
 
@@ -35,13 +35,12 @@ app.use((req, res, next) => {
 });
 app.use(morgan("dev"));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/nannies', nannyRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/appointments', appointmentRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/nannies", nannyRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 app.use(errors());
-
 app.use(errorHandler);
 
 const startApp = async () => {
@@ -51,7 +50,7 @@ const startApp = async () => {
       console.log(`Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("❌ Failed to start the application:", error);
+    console.error("Failed to start the application:", error);
   }
 };
 
