@@ -118,8 +118,8 @@ The UI will be based on the
 
 ## Deployment
 
-Planned deployment:
-
-- Frontend: Vercel
-- Backend: Render or Railway
+- Backend API: [nanny-services-api.onrender.com](https://nanny-services-api.onrender.com/api/nannies)
+- Interactive API documentation: [Scalar API Reference](https://nanny-services-api.onrender.com/api-docs)
+- OpenAPI specification: [openapi.yaml](https://nanny-services-api.onrender.com/openapi.yaml)
 - Database: MongoDB Atlas
+- Frontend: Vercel deployment planned

@@ -6,6 +6,8 @@ info:
     REST API for finding nannies, managing favorites, booking appointments,
     and leaving reviews after completed appointments.
 servers:
+  - url: https://nanny-services-api.onrender.com/api
+    description: Render production
   - url: http://localhost:5000/api
     description: Local development
 tags:
