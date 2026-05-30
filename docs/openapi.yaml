@@ -1,0 +1,491 @@
+openapi: 3.1.0
+info:
+  title: Nanny Services API
+  version: 1.0.0
+  description: |
+    REST API for finding nannies, managing favorites, booking appointments,
+    and leaving reviews after completed appointments.
+servers:
+  - url: http://localhost:5000/api
+    description: Local development
+tags:
+  - name: Authentication
+  - name: Users
+  - name: Nannies
+  - name: Appointments
+paths:
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register a parent or nanny
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: Log in and receive a JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: User logged in
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Log out on the client
+      description: The client must remove the JWT token after this request.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: User logged out
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get the current user with available favorite nannies
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /users/avatar:
+    patch:
+      tags: [Users]
+      summary: Update the current user avatar
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [avatar]
+              properties:
+                avatar:
+                  type: string
+                  format: uri
+                  example: https://example.com/avatar.jpg
+      responses:
+        "200":
+          description: Avatar updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /users/update-password:
+    patch:
+      tags: [Users]
+      summary: Update the current user password
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [oldPassword, newPassword]
+              properties:
+                oldPassword:
+                  type: string
+                  example: StrongPass123!
+                newPassword:
+                  type: string
+                  minLength: 8
+                  example: NewStrongPass456!
+      responses:
+        "200":
+          description: Password updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /users/favorites:
+    post:
+      tags: [Users]
+      summary: Toggle a nanny in the current user's favorites
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NannyIdRequest"
+      responses:
+        "200":
+          description: Favorites updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /nannies:
+    get:
+      tags: [Nannies]
+      summary: Get completed nanny profiles
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            minimum: 3
+            maximum: 20
+            default: 3
+        - in: query
+          name: region
+          description: Case-insensitive region value, for example kyiv oblast.
+          schema:
+            type: string
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: a_to_z
+            enum: [a_to_z, z_to_a, popular, not_popular, price_asc, price_desc]
+        - in: query
+          name: filter
+          schema:
+            type: string
+            default: show_all
+            enum: [less_than_18, greater_than_18, show_all]
+      responses:
+        "200":
+          description: Paginated nanny profiles
+  /nannies/me:
+    get:
+      tags: [Nannies]
+      summary: Get the current nanny profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Nanny profile
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    patch:
+      tags: [Nannies]
+      summary: Update the current nanny profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateNannyProfileRequest"
+      responses:
+        "200":
+          description: Nanny profile updated
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /nannies/{nannyId}:
+    get:
+      tags: [Nannies]
+      summary: Get a completed nanny profile and reviews
+      parameters:
+        - $ref: "#/components/parameters/NannyId"
+      responses:
+        "200":
+          description: Nanny details
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /nannies/{nannyId}/appointments:
+    post:
+      tags: [Appointments]
+      summary: Create an appointment request
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/NannyId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentRequest"
+      responses:
+        "201":
+          description: Appointment created
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /appointments/my:
+    get:
+      tags: [Appointments]
+      summary: Get appointments created by the current parent
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Parent appointments
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /appointments/incoming:
+    get:
+      tags: [Appointments]
+      summary: Get incoming appointments for the current nanny
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Incoming appointments
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /appointments/{appointmentId}/status:
+    patch:
+      tags: [Appointments]
+      summary: Accept or reject a pending appointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/AppointmentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [accepted, rejected]
+      responses:
+        "200":
+          description: Appointment status updated
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /appointments/{appointmentId}/complete:
+    patch:
+      tags: [Appointments]
+      summary: Complete an accepted appointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/AppointmentId"
+      responses:
+        "200":
+          description: Appointment completed
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /appointments/{appointmentId}/cancel:
+    patch:
+      tags: [Appointments]
+      summary: Cancel a pending or accepted appointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/AppointmentId"
+      responses:
+        "200":
+          description: Appointment cancelled
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /appointments/{appointmentId}/reviews:
+    post:
+      tags: [Appointments]
+      summary: Review a completed appointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/AppointmentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequest"
+      responses:
+        "201":
+          description: Review created
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    NannyId:
+      in: path
+      name: nannyId
+      required: true
+      schema:
+        type: string
+      example: 0cef122f685b662efedcab95
+    AppointmentId:
+      in: path
+      name: appointmentId
+      required: true
+      schema:
+        type: string
+      example: 6a04f135f348224190b65418
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [name, email, password, role]
+      properties:
+        name:
+          type: string
+          minLength: 3
+          example: Oleksandr Sulyma
+        email:
+          type: string
+          format: email
+          example: parent@example.com
+        password:
+          type: string
+          minLength: 8
+          example: StrongPass123!
+        role:
+          type: string
+          enum: [parent, nanny]
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: parent@example.com
+        password:
+          type: string
+          example: StrongPass123!
+    NannyIdRequest:
+      type: object
+      required: [nannyId]
+      properties:
+        nannyId:
+          type: string
+          example: 0cef122f685b662efedcab95
+    UpdateNannyProfileRequest:
+      type: object
+      properties:
+        avatar_url:
+          type: string
+          format: uri
+          example: https://example.com/nanny.jpg
+        birthday:
+          type: string
+          format: date
+          example: 1994-04-10
+        experience:
+          type: string
+          example: 6 years
+        education:
+          type: string
+          example: Master's in Early Childhood Development
+        kids_age:
+          type: string
+          example: 2 to 9 years old
+        price_per_hour:
+          type: number
+          exclusiveMinimum: 0
+          example: 20
+        location:
+          $ref: "#/components/schemas/Location"
+        about:
+          type: string
+          example: I provide attentive and reliable childcare.
+        characters:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          example: [attentive, patient, creative]
+    Location:
+      type: object
+      required: [country, region, settlement]
+      properties:
+        country:
+          type: string
+          example: ukraine
+        region:
+          type: string
+          example: kyiv oblast
+        settlement:
+          type: string
+          example: brovary
+    CreateAppointmentRequest:
+      type: object
+      required: [parentName, email, address, phone, childAge, scheduledAt]
+      properties:
+        parentName:
+          type: string
+          example: Oleksandr Sulyma
+        email:
+          type: string
+          format: email
+          example: parent@example.com
+        address:
+          type: string
+          example: Kyiv, Khreshchatyk Street 12
+        phone:
+          type: string
+          example: "+380671234567"
+        childAge:
+          type: string
+          example: 5 years
+        scheduledAt:
+          type: string
+          format: date-time
+          example: "2026-06-15T09:30:00.000Z"
+        comment:
+          type: string
+          example: We would like to arrange a meeting.
+    CreateReviewRequest:
+      type: object
+      required: [rating, comment]
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          minLength: 3
+          example: The nanny was attentive, punctual, and kind.
+  responses:
+    Unauthorized:
+      description: Authentication required or token is invalid
+    Forbidden:
+      description: The current role is not allowed to perform this action
+    NotFound:
+      description: Requested resource not found
+    Conflict:
+      description: Resource already exists
