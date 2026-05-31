@@ -79,7 +79,7 @@ export const updateAppointmentStatus = catchAsync(async (req, res) => {
   const updatedAppointment = await Appointment.findByIdAndUpdate(
     appointmentId,
     { status },
-    { new: true },
+    { returnDocument: "after" },
   );
 
   res.status(200).json({
@@ -109,7 +109,7 @@ export const completeAppointment = catchAsync(async (req, res) => {
   const completedAppointment = await Appointment.findByIdAndUpdate(
     appointmentId,
     { status: "completed" },
-    { new: true },
+    { returnDocument: "after" },
   );
 
   res.status(200).json({
@@ -142,7 +142,7 @@ export const cancelAppointment = catchAsync(async (req, res) => {
   const cancelledAppointment = await Appointment.findByIdAndUpdate(
     appointmentId,
     { status: "cancelled" },
-    { new: true },
+    { returnDocument: "after" },
   );
 
   res.status(200).json({
@@ -248,7 +248,7 @@ export const createReview = catchAsync(async (req, res) => {
   const updatedNanny = await Nanny.findByIdAndUpdate(
     nannyId,
     { rating: averageRating },
-    { new: true },
+    { returnDocument: "after" },
   );
 
   res.status(201).json({

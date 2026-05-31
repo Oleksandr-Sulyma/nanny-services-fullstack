@@ -26,7 +26,7 @@ export const updateAvatar = catchAsync(async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     req.user.id,
     { avatar },
-    { new: true },
+    { returnDocument: "after" },
   );
 
   res.status(200).json({

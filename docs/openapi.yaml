@@ -11,11 +11,27 @@ servers:
   - url: http://localhost:5000/api
     description: Local development
 tags:
+  - name: Health
   - name: Authentication
   - name: Users
   - name: Nannies
   - name: Appointments
 paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Check whether the API server is running
+      responses:
+        "200":
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: API is running
   /auth/register:
     post:
       tags: [Authentication]

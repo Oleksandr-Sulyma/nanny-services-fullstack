@@ -96,7 +96,7 @@ export const updateMyNannyProfile = catchAsync(async (req, res) => {
   const nanny = await Nanny.findOneAndUpdate(
     { userId: req.user.id },
     { $set: req.body },
-    { new: true, runValidators: true },
+    { returnDocument: "after", runValidators: true },
   );
 
   if (!nanny) throw createHttpError(404, "Nanny not found");

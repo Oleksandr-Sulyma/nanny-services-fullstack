@@ -78,6 +78,21 @@ npm run dev
 
 The server will be available at `http://localhost:5000`.
 
+Run the automated backend tests:
+
+```bash
+npm test
+```
+
+Use watch mode while developing:
+
+```bash
+npm run test:watch
+```
+
+The integration tests use an isolated in-memory MongoDB instance. They do not
+modify MongoDB Atlas data.
+
 ### MongoDB Indexes
 
 The database uses these unique indexes:

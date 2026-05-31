@@ -18,6 +18,14 @@ Protected routes require an access token:
 Authorization: Bearer <token>
 ```
 
+## Health Check
+
+```http
+GET /health
+```
+
+Returns `200` when the API server is running.
+
 ## Authentication
 
 ### Register
