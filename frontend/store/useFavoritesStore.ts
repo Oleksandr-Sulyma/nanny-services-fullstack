@@ -4,12 +4,12 @@ import type { FavoritesState } from "@/types/types";
 export const useFavoritesStore = create<FavoritesState>()((set, get) => ({
   favoriteIds: [],
 
-  isFavorite: (id: string) => {
+  isFavorite: (id) => {
     const favoriteIdsAr = get().favoriteIds;
     return favoriteIdsAr.includes(id);
   },
 
-  addFavorite: (id: string) => {
+  addFavorite: (id) => {
     if (!get().isFavorite(id)) {
       set({
         favoriteIds: [...get().favoriteIds, id],
@@ -17,19 +17,19 @@ export const useFavoritesStore = create<FavoritesState>()((set, get) => ({
     }
   },
 
-  removeFavorite: (id: string) => {
+  removeFavorite: (id) => {
     set({
       favoriteIds: get().favoriteIds.filter((el) => el !== id),
     });
   },
 
-  toggleFavorite: (id: string) => {
-  if (get().isFavorite(id)) {
-    get().removeFavorite(id);
-  } else {
-    get().addFavorite(id);
-  }
-},
+  toggleFavorite: (id) => {
+    if (get().isFavorite(id)) {
+      get().removeFavorite(id);
+    } else {
+      get().addFavorite(id);
+    }
+  },
 
   clearFavorites: () => {
     set({
@@ -37,7 +37,7 @@ export const useFavoritesStore = create<FavoritesState>()((set, get) => ({
     });
   },
 
-  setFavorites: (ids: string[]) => {
+  setFavorites: (ids) => {
     set({
       favoriteIds: ids,
     });

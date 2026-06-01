@@ -1,15 +1,60 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
-import type {  Nanny, NanniesState } from '@/types/types'
+import type { NanniesState } from "@/types/types";
 
+export const useNanniesStore = create<NanniesState>()((set) => ({
+  nannies: [],
+  page: 1,
+  totalPages: 0,
+  isLoading: false,
+  sort: "a_to_z",
+  region: "",
 
-export const useNanniesStore = create<NanniesState>()(
-//     nannies
-// visibleCount або page
-// filter
-// sort
-// loadNannies
-// loadMore
-// setSort
+  setNannies: (nannies) => {
+    set({
+      nannies,
+    });
+  },
 
-)
+  addNannies: (nannies) => {
+    set((state) => ({
+      nannies: [...state.nannies, ...nannies],
+    }));
+  },
+
+  setPage: (page) => {
+    set({
+      page,
+    });
+  },
+
+  setTotalPages: (totalPages) => {
+    set({
+      totalPages,
+    });
+  },
+
+  setLoading: (isLoading) => {
+    set({
+      isLoading,
+    });
+  },
+
+  setSort: (sort) => {
+    set({
+      sort,
+    });
+  },
+
+  setRegion: (region) => {
+    set({
+      region,
+    });
+  },
+
+  resetNannies: () =>
+    set({
+      nannies: [],
+      page: 1,
+      totalPages: 0,
+    }),
+}));
