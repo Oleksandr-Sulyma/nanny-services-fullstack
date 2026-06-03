@@ -88,6 +88,8 @@ export type NanniesState = {
   region: string;
   setRegion: (region: string) => void;
   resetNannies: () => void;
+  loadNannies: () => Promise<void>;
+  loadMoreNannies: () => Promise<void>;
 };
 
 export type AuthState = {
