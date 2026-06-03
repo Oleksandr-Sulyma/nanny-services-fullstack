@@ -11,6 +11,8 @@ export enum AppointmentStatus {
   CANCELLED = "cancelled",
 }
 
+export type UserFavorite = string | Nanny;
+
 export type Location = {
   country: string;
   region: string;
@@ -55,7 +57,7 @@ export type User = {
   name: string;
   email: string;
   avatar: string;
-  favorites: string[];
+  favorites: UserFavorite[];
   role: Role;
 };
 
@@ -99,6 +101,7 @@ export type AuthState = {
   setAuth: (user: User) => void;
   clearAuth: () => void;
   setLoading: (loading: boolean) => void;
+  fetchCurrentUser: () => Promise<void>;
 };
 
 export type FavoritesState = {
@@ -134,4 +137,8 @@ export type NanniesResponse = {
   totalItems: number;
   totalPages: number;
   data: Nanny[];
+};
+
+export type CurrentUserResponse = {
+  data: User;
 };
