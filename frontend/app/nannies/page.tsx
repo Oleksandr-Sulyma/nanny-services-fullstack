@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { useNanniesStore } from "@/store/useNanniesStore";
-import NanniesList from "@/components/nannies/NanniesList";
 import LoadMoreButton from "@/components/nannies/LoadMoreButton";
-import NanniesControls from "@/components/nannies/NanniesControls"
+import NanniesControls from "@/components/nannies/NanniesControls";
+import NanniesList from "@/components/nannies/NanniesList";
+import { useNanniesStore } from "@/store/useNanniesStore";
 
 export default function NanniesPage() {
   const {
