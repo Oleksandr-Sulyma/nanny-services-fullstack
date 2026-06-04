@@ -142,3 +142,10 @@ export type NanniesResponse = {
 export type CurrentUserResponse = {
   data: User;
 };
+
+export type ThemeName = "red" | "blue" | "green";
+
+export type ThemeState = {
+  theme: ThemeName;
+  setTheme: (theme: ThemeName) => void;
+};
