@@ -1,5 +1,5 @@
 import type { GetNanniesParams } from "@/types/params";
-import type { NanniesResponse } from "@/types/types";
+import type { NanniesResponse, NannyDetailsResponse } from "@/types/types";
 
 export async function getNannies(
   params: GetNanniesParams,
@@ -23,4 +23,16 @@ export async function getNannies(
   const nannies = await res.json();
 
   return nannies;
+}
+
+export async function getNannyDetails(
+  nannyId: string,
+): Promise<NannyDetailsResponse> {
+  const res = await fetch(`/api/nannies/${nannyId}`);
+
+  if (!res.ok) {
+    throw new Error(`Backend request failed: ${res.status}`);
+  }
+  const response = await res.json();
+  return response;
 }

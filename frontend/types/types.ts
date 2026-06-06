@@ -149,3 +149,10 @@ export type ThemeState = {
   theme: ThemeName;
   setTheme: (theme: ThemeName) => void;
 };
+
+export type NannyDetailsResponse = {
+  data: {
+    nanny: Nanny;
+    reviews: Review[];
+  };
+};

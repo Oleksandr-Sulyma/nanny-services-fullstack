@@ -27,7 +27,7 @@ export default function NanniesPage() {
   const hasNannies = nannies.length > 0;
 
   return (
-    <main>
+    <main className="app-container py-10 md:py-16">
       <h2>Nannies</h2>
       {isLoading && <p>Loading...</p>}
       <NanniesControls
