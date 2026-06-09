@@ -156,3 +156,22 @@ export type NannyDetailsResponse = {
     reviews: Review[];
   };
 };
+
+export type ToggleFavoriteResponse = {
+  message: string;
+  favorites: string[];
+};
+
+export type RegisterPayload = {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+};
+
+export type RegisterResponse = {
+  data: {
+    user: User;
+    nanny?: Nanny | null;
+  };
+};

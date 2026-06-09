@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getNannyDetails } from "@/lib/nanniesApi";
+import { toggleFavoriteRequest } from "@/lib/favoritesApi";
 
 type NannyCardProps = {
   nanny: Nanny;
@@ -22,24 +23,31 @@ export default function NannyCard({ nanny }: NannyCardProps) {
   const settlement = formatLocationPart(nanny.location.settlement);
   const region = formatLocationPart(nanny.location.region);
   const isFavorite = useFavoritesStore((state) => state.isFavorite(nanny.id));
-  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+  const setFavorites = useFavoritesStore((state) => state.setFavorites);
   const [isExpanded, setIsExpanded] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isReviewsLoading, setIsReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
-
   const { isAuthenticated } = useAuthStore();
-  const handleFavoriteClick = () => {
-    if (!isAuthenticated) {
+
+  const handleFavoriteClick = async () => {
+    try {
+      if (!isAuthenticated) {
       alert("Please log in to add nannies to favorites");
       return;
     }
-    return toggleFavorite(nanny.id);
+    const { favorites } = await toggleFavoriteRequest(nanny.id);
+    setFavorites(favorites);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update favorites")
+    }
+    
   };
 
   const handleReadMore = async () => {
     setIsExpanded(true);
-    setReviewsError(null)
+    setReviewsError(null);
     if (reviews.length > 0) return;
     try {
       setIsReviewsLoading(true);
@@ -47,9 +55,8 @@ export default function NannyCard({ nanny }: NannyCardProps) {
       setReviews(response.data.reviews);
     } catch (error) {
       console.error(error);
-      setReviewsError("Failed to load reviews")
-    }
-    finally {
+      setReviewsError("Failed to load reviews");
+    } finally {
       setIsReviewsLoading(false);
     }
   };
@@ -136,7 +143,11 @@ export default function NannyCard({ nanny }: NannyCardProps) {
           )}
           {isExpanded && (
             <div className="mt-12 flex flex-col gap-12">
-              {reviewsError && <p className="text-base text-[var(--color-muted)]">{reviewsError}</p>}
+              {reviewsError && (
+                <p className="text-base text-[var(--color-muted)]">
+                  {reviewsError}
+                </p>
+              )}
               {isReviewsLoading && <p>Loading reviews...</p>}
               {!isReviewsLoading && !reviewsError && (
                 <>

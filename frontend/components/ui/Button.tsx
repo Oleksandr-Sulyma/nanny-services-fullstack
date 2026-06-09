@@ -7,6 +7,7 @@ type ButtonProps = {
   variant?: "primary" | "outline" | "ghost";
   className?: string;
   size?: "md" | "lg";
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -16,6 +17,7 @@ export default function Button({
   onClick,
   className = "",
   size = "lg",
+  disabled = false,
 }: ButtonProps) {
   const baseClassName =
     "inline-flex items-center justify-center min-h-12 py-3 rounded-[30px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60";
@@ -32,6 +34,7 @@ export default function Button({
       type={type}
       className={`${baseClassName} ${variantClassName} ${sizeClassName} ${className}`}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>
