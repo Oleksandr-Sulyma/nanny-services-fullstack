@@ -1,5 +1,9 @@
 import type { GetNanniesParams } from "@/types/params";
-import type { NanniesResponse, NannyDetailsResponse } from "@/types/types";
+import type {
+  NanniesResponse,
+  NannyDetailsResponse,
+  MyNannyProfileResponse,
+} from "@/types/types";
 
 export async function getNannies(
   params: GetNanniesParams,
@@ -34,5 +38,21 @@ export async function getNannyDetails(
     throw new Error(`Backend request failed: ${res.status}`);
   }
   const response = await res.json();
+  return response;
+}
+
+export async function getMyNannyProfile(): Promise<MyNannyProfileResponse> {
+  const res = await fetch("/api/nannies/me", {
+    cache: "no-store",
+  });
+
+  const response = await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      response.message ?? `Failed to load nanny profile: ${res.status}`,
+    );
+  }
+
   return response;
 }

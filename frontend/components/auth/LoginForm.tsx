@@ -2,87 +2,63 @@
 
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { Eye, EyeOff, ChevronDown } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { registerRequest } from "@/lib/authApi";
-import { Role } from "@/types/types";
-import Button from "@/components/ui/Button";
-import { loginRequest } from "@/lib/authApi";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
+import { loginRequest } from "@/lib/authApi";
 import { getFavoriteIds } from "@/lib/favorites";
+import Button from "@/components/ui/Button";
 import { getAuthRedirectPath } from "@/lib/authRedirect";
 import { useRouter } from "next/navigation";
 
-const userSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters long").trim(),
-  email: z.email("Please enter a valid email address").trim().toLowerCase(),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters long")
-    .regex(
-      /^[\x21-\x7E]+$/,
-      "Password must contain only Latin letters, numbers, and symbols without spaces",
-    )
-    .trim(),
-  role: z.enum(Role, { message: "Please choose your role" }),
-});
-
-type UserFormData = z.infer<typeof userSchema>;
-
-type RegisterFormProps = {
+type LoginFormProps = {
   onSuccess?: () => void;
 };
 
-export default function RegisterForm({ onSuccess }: RegisterFormProps) {
+const loginSchema = z.object({
+  email: z.email("Please enter a valid email address").trim().toLowerCase(),
+  password: z.string().min(1, "Password is required").trim(),
+});
+
+type UserFormData = z.infer<typeof loginSchema>;
+
+export default function LoginForm({ onSuccess }: LoginFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
-    defaultValues: {
-      role: undefined,
-    },
+    resolver: zodResolver(loginSchema),
   });
 
-  const [successMessage, setSuccessMessage] = useState("");
+  const { setAuth } = useAuthStore();
   const [errorMessage, setErrorMessage] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const { setAuth } = useAuthStore();
+
   const router = useRouter();
 
   const onSubmit = async (data: UserFormData) => {
-    setSuccessMessage("");
     setErrorMessage("");
 
     try {
-      await registerRequest(data);
-      const loginResponse = await loginRequest({
-        email: data.email,
-        password: data.password,
-      });
-
-      setAuth(loginResponse.data.user);
-
+      const response = await loginRequest(data);
+      setAuth(response.data.user);
       useFavoritesStore
         .getState()
-        .setFavorites(getFavoriteIds(loginResponse.data.user.favorites));
-
-      const redirectPath = await getAuthRedirectPath(loginResponse.data.user);
-
+        .setFavorites(getFavoriteIds(response.data.user.favorites));
+      const redirectPath = await getAuthRedirectPath(response.data.user);
       onSuccess?.();
 
       if (redirectPath) {
         router.push(redirectPath);
       }
-      setSuccessMessage("Registration successful. Please log in.");
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
       } else {
-        setErrorMessage("Registration failed");
+        setErrorMessage("Log in failed");
       }
     }
   };
@@ -92,17 +68,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4.5">
-      <div>
-        <input
-          {...register("name")}
-          placeholder="Name"
-          className={inputClassName}
-        />
-        {errors.name && (
-          <p className="text-brand text-sm mt-1">{errors.name.message}</p>
-        )}
-      </div>
-
       <div>
         <input
           type="email"
@@ -139,27 +104,9 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         )}
       </div>
 
-      <div className="relative">
-        <select
-          className={`${inputClassName} appearance-none pr-12`}
-          {...register("role")}
-        >
-          <option value="" disabled>
-            Choose your role
-          </option>
-          <option value={Role.PARENT}>Parent</option>
-          <option value={Role.NANNY}>Nanny</option>
-        </select>
-        <ChevronDown className="pointer-events-none absolute right-[18px] top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--color-muted)]" />
-      </div>
-
       <Button type="submit" className="h-12 w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Creating account..." : "Sign Up"}
+        {isSubmitting ? "Logging in..." : "Log In"}
       </Button>
-
-      {successMessage && (
-        <p className="text-sm text-green-600">{successMessage}</p>
-      )}
 
       {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
     </form>

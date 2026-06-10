@@ -175,3 +175,23 @@ export type RegisterResponse = {
     nanny?: Nanny | null;
   };
 };
+
+export type LoginPayload = {
+  email: string;
+  password: string;
+};
+
+export type LoginResponse = {
+  message: string;
+  data: {
+    user: User;
+  };
+};
+
+export type MyNannyProfileResponse = {
+  data: Nanny;
+};
+
+export type LogoutResponse = {
+  message: string;
+};
