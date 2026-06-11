@@ -216,3 +216,12 @@ export type UpdateNannyProfileResponse = {
   message: string;
   data: Nanny;
 };
+
+export type UpdateUserAvatarPayload = {
+  avatar: string;
+};
+
+export type UpdateUserAvatarResponse = {
+  message: string;
+  data: User;
+};
