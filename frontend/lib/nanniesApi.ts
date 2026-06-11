@@ -3,6 +3,8 @@ import type {
   NanniesResponse,
   NannyDetailsResponse,
   MyNannyProfileResponse,
+  UpdateNannyProfilePayload,
+  UpdateNannyProfileResponse,
 } from "@/types/types";
 
 export async function getNannies(
@@ -51,6 +53,28 @@ export async function getMyNannyProfile(): Promise<MyNannyProfileResponse> {
   if (!res.ok) {
     throw new Error(
       response.message ?? `Failed to load nanny profile: ${res.status}`,
+    );
+  }
+
+  return response;
+}
+
+export async function updateMyNannyProfile(
+  payload: UpdateNannyProfilePayload,
+): Promise<UpdateNannyProfileResponse> {
+  const res = await fetch("/api/nannies/me", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const response = await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      response.message ?? `Failed to update profile: ${res.status}`,
     );
   }
 

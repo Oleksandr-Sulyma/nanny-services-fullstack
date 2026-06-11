@@ -24,3 +24,32 @@ export async function GET() {
 
   return Response.json(response);
 }
+
+export async function PATCH(request: Request) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth_token")?.value;
+
+  if (!token) {
+    return Response.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+
+  const res = await fetch(`${API_URL}/nannies/me`, {
+    method: "PATCH",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const response = await res.json();
+
+  if (!res.ok) {
+    return Response.json(response, { status: res.status });
+  }
+
+  return Response.json(response);
+}

@@ -47,14 +47,12 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     },
   });
 
-  const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { setAuth } = useAuthStore();
   const router = useRouter();
 
   const onSubmit = async (data: UserFormData) => {
-    setSuccessMessage("");
     setErrorMessage("");
 
     try {
@@ -77,7 +75,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       if (redirectPath) {
         router.push(redirectPath);
       }
-      setSuccessMessage("Registration successful. Please log in.");
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(error.message);
@@ -156,10 +153,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       <Button type="submit" className="h-12 w-full" disabled={isSubmitting}>
         {isSubmitting ? "Creating account..." : "Sign Up"}
       </Button>
-
-      {successMessage && (
-        <p className="text-sm text-green-600">{successMessage}</p>
-      )}
 
       {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
     </form>

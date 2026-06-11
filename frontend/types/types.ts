@@ -195,3 +195,24 @@ export type MyNannyProfileResponse = {
 export type LogoutResponse = {
   message: string;
 };
+
+export type UpdateNannyProfilePayload = {
+  avatar_url?: string;
+  birthday?: string;
+  experience?: string;
+  education?: string;
+  kids_age?: string;
+  price_per_hour?: number;
+  location?: {
+    country?: string;
+    region?: string;
+    settlement?: string;
+  };
+  about?: string;
+  characters?: string[];
+};
+
+export type UpdateNannyProfileResponse = {
+  message: string;
+  data: Nanny;
+};

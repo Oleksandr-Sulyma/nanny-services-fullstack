@@ -23,3 +23,15 @@ export function getAgeFromBirthday(birthday?: string): number | null {
 
   return age;
 }
+
+export function formatDate(value?: string): string {
+  if (!value) return "Not specified";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not specified";
+  }
+
+  return new Intl.DateTimeFormat("en-GB").format(date);
+}

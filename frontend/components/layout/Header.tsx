@@ -19,8 +19,8 @@ export default function Header() {
   const isNanniesActive = pathname === "/nannies";
   const isFavoritesActive = pathname === "/favorites";
   const isAppointmentsActive = pathname === "/appointments";
-  const isProfileActive = pathname === "/nanny/profile";
   const isIncomingActive = pathname === "/appointments/incoming";
+  const isUserProfileActive = pathname === "/profile";
   const { user, isAuthenticated, clearAuth } = useAuthStore();
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -44,6 +44,13 @@ export default function Header() {
         : ""
     }`;
 
+  const getUserProfileLinkClassName = (isActive: boolean) =>
+    `relative flex items-center gap-2 pb-4 ${
+      isActive
+        ? "after:absolute after:bottom-0 after:left-1/2 after:h-2 after:w-2 after:-translate-x-1/2 after:rounded-full after:bg-white"
+        : ""
+    }`;
+
   return (
     <>
       <header className="bg-brand text-white">
@@ -58,7 +65,7 @@ export default function Header() {
           <div className="hidden items-center gap-23 lg:flex">
             <nav className="flex items-center gap-10">
               <Link href="/" className={getNavLinkClassName(isHomeActive)}>
-                HomeLink
+                Home
               </Link>
               <Link
                 href="/nannies"
@@ -84,11 +91,11 @@ export default function Header() {
               )}
               {user?.role === Role.NANNY && (
                 <>
-                  <Link href="/nanny/profile">
-                    My profile{isProfileActive && " *"}
-                  </Link>
-                  <Link href="/appointments/incoming">
-                    Incoming{isIncomingActive && " *"}
+                  <Link
+                    href="/appointments/incoming"
+                    className={getNavLinkClassName(isIncomingActive)}
+                  >
+                    Incoming
                   </Link>
                 </>
               )}
@@ -115,10 +122,23 @@ export default function Header() {
               )}
               {isAuthenticated && (
                 <>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand">
-                    {user?.name?.[0]}
-                  </div>
-                  <span>{user?.name}</span>
+                  {user?.role === Role.NANNY && (
+                    <Link href="/nanny/profile" className={getUserProfileLinkClassName(pathname === "/nanny/profile")}>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand">
+                        {user?.name?.[0]}
+                      </div>
+                      <span>{user?.name}</span>
+                    </Link>
+                  )}
+                  {user?.role === Role.PARENT && (
+                    <Link href="/profile" className={getUserProfileLinkClassName(isUserProfileActive)}>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand">
+                        {user?.name?.[0]}
+                      </div>
+                      <span>{user?.name}</span>
+                    </Link>
+                  )}
+
                   <Button variant="outline" onClick={handleLogout} size="lg">
                     Log out
                   </Button>

@@ -5,7 +5,13 @@ export async function POST() {
     message: "Logged out successfully",
   });
 
-  response.cookies.delete("auth_token");
+  response.cookies.set("auth_token", "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+  });
 
   return response;
 }
