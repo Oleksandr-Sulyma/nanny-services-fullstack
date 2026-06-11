@@ -9,6 +9,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import authRoutes from "./routes/authRoutes.js";
 import nannyRoutes from "./routes/nannyRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 
 const app = express();
@@ -42,7 +43,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/nannies", nannyRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/appointments", appointmentRoutes);
-
+app.use("/api/uploads", uploadRoutes);
 app.use(errors());
 app.use(errorHandler);
 
