@@ -109,6 +109,14 @@ export const updateProfile = catchAsync(async (req, res) => {
 
   await user.save();
 
+  if (user.role === "nanny" && avatar !== undefined) {
+    await Nanny.findOneAndUpdate(
+      { userId: user._id },
+      { avatar_url: avatar },
+      { returnDocument: "after" },
+    );
+  }
+
   res.status(200).json({
     message: "User profile updated successfully",
     data: user,
