@@ -2,45 +2,90 @@
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
-import { updateUserAvatar } from "@/lib/usersApi";
+import { useState, useRef } from "react";
+import { updateUserProfile } from "@/lib/usersApi";
 import { useAuthStore } from "@/store/useAuthStore";
 import Button from "@/components/ui/Button";
-import { Role } from "@/types/types";
 import ProfileField from "@/components/ui/ProfileField";
+import { uploadAvatarFile } from "@/lib/uploadsApi";
+import { Role } from "@/types/types";
 
-type AvatarFormData = {
-  avatar: string;
+type UserProfileFormData = {
+  name: string;
+  email: string;
 };
 
 export default function UserProfileView() {
   const [isEditing, setIsEditing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { user, isLoading, setAuth } = useAuthStore();
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<AvatarFormData>({
+  } = useForm<UserProfileFormData>({
     values: {
-      avatar: user?.avatar ?? "",
+      name: user?.name ?? "",
+      email: user?.email ?? "",
     },
   });
 
-  const onSubmit = async (data: AvatarFormData) => {
-    const response = await updateUserAvatar(data);
-    setAuth(response.data);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const onSubmit = async (data: UserProfileFormData) => {
+    setErrorMessage("");
+
+    try {
+      if (!user) return;
+
+      let avatar = user.avatar;
+
+      if (selectedFile) {
+        const uploadResponse = await uploadAvatarFile(selectedFile);
+        avatar = uploadResponse.data.url;
+      }
+
+      const response = await updateUserProfile({
+        name: data.name,
+        email: data.email,
+        avatar,
+      });
+
+      setAuth(response.data);
+      setIsEditing(false);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to update profile",
+      );
+    }
+  };
+
+  const handleCancel = () => {
     setIsEditing(false);
+    setSelectedFile(null);
+    setPreviewUrl("");
   };
 
   const handleNavigation = () => {
     router.push("/favorites");
   };
 
-  if (user && user.role !== Role.PARENT) {
-    return <p>This page is available only for parents.</p>;
-  }
+  const inputClassName =
+    "h-[44px] w-full rounded-xl border border-[rgba(17,16,28,0.1)] px-4 text-base outline-none transition focus:border-brand";
+  const displayedAvatar = previewUrl || user?.avatar || "";
 
   return (
     <div>
@@ -51,9 +96,9 @@ export default function UserProfileView() {
         <section className="rounded-3xl bg-surface p-6">
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="flex items-center gap-4">
-              {user.avatar ? (
+              {displayedAvatar ? (
                 <img
-                  src={user.avatar}
+                  src={displayedAvatar}
                   alt={user.name}
                   className="h-20 w-20 rounded-2xl object-cover"
                   width={80}
@@ -83,36 +128,93 @@ export default function UserProfileView() {
           </div>
 
           {isEditing ? (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label className="text-sm text-(--color-muted)">
-                  Avatar URL
-                </label>
-                <input
-                  type="text"
-                  {...register("avatar", {
-                    required: "Avatar URL is required",
-                  })}
-                  className="mt-1 h-11 w-full rounded-xl border border-[rgba(17,16,28,0.1)] px-4 outline-none transition focus:border-brand"
-                />
-                {errors.avatar && (
-                  <p className="mt-1 text-sm text-brand">
-                    {errors.avatar.message}
-                  </p>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                {displayedAvatar ? (
+                  <img
+                    src={displayedAvatar}
+                    alt={user.name}
+                    className="h-24 w-24 rounded-2xl object-cover"
+                    width={96}
+                    height={96}
+                  />
+                ) : (
+                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-brand-soft text-3xl font-medium text-brand">
+                    {user.name?.charAt(0).toUpperCase() || "?"}
+                  </div>
                 )}
+
+                <div className="flex min-w-0 flex-col gap-2">
+                  <p className="text-sm text-(--color-muted)">Profile photo</p>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="md"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-fit"
+                  >
+                    {selectedFile ? "Change photo" : "Change photo"}
+                  </Button>
+                  {selectedFile && (
+                    <p className="wrap-break-word text-xs text-green-600">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                <Button type="submit" size="md" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : "Save"}
-                </Button>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="text-sm text-(--color-muted)">Name</label>
+                  <input
+                    type="text"
+                    {...register("name", { required: "Name is required" })}
+                    className={inputClassName}
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-brand">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-sm text-(--color-muted)">Email</label>
+                  <input
+                    type="email"
+                    {...register("email", { required: "Email is required" })}
+                    className={inputClassName}
+                  />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-brand">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {errorMessage && (
+                <p className="text-sm text-brand">{errorMessage}</p>
+              )}
+
+              <div className="flex flex-wrap justify-end gap-3">
                 <Button
                   type="button"
                   variant="ghost"
                   size="md"
-                  onClick={() => setIsEditing(false)}
+                  onClick={handleCancel}
                 >
                   Cancel
+                </Button>
+                <Button type="submit" size="md" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save changes"}
                 </Button>
               </div>
             </form>
@@ -128,11 +230,13 @@ export default function UserProfileView() {
                 />
               </div>
 
-              <div className="mt-6">
-                <Button variant="ghost" size="lg" onClick={handleNavigation}>
-                  View favorites
-                </Button>
-              </div>
+              {user.role === Role.PARENT && (
+                <div className="mt-6">
+                  <Button variant="ghost" size="lg" onClick={handleNavigation}>
+                    View favorites
+                  </Button>
+                </div>
+              )}
             </>
           )}
         </section>

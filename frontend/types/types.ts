@@ -217,11 +217,21 @@ export type UpdateNannyProfileResponse = {
   data: Nanny;
 };
 
-export type UpdateUserAvatarPayload = {
-  avatar: string;
+export type UpdateUserProfilePayload = {
+  name?: string;
+  email?: string;
+  avatar?: string;
 };
 
-export type UpdateUserAvatarResponse = {
+export type UpdateUserProfileResponse = {
   message: string;
   data: User;
 };
+
+export type UploadAvatarResponse = {
+  message: string;
+  data: {
+    url: string;
+  };
+};
+

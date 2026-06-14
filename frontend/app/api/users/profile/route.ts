@@ -11,7 +11,7 @@ export async function PATCH(request: Request) {
 
   const body = await request.json();
 
-  const res = await fetch(`${API_URL}/users/avatar`, {
+  const res = await fetch(`${API_URL}/users/profile`, {
     method: "PATCH",
     cache: "no-store",
     headers: {

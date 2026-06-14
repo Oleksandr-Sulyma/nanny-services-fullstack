@@ -17,6 +17,7 @@ export default function Header() {
   const pathname = usePathname();
   const isHomeActive = pathname === "/";
   const isNanniesActive = pathname === "/nannies";
+  const isNanniesProfileActive = pathname === "/nanny/profile";
   const isFavoritesActive = pathname === "/favorites";
   const isAppointmentsActive = pathname === "/appointments";
   const isIncomingActive = pathname === "/appointments/incoming";
@@ -97,6 +98,12 @@ export default function Header() {
                   >
                     Incoming
                   </Link>
+                  <Link
+                    href="/nanny/profile"
+                    className={getNavLinkClassName(isNanniesProfileActive)}
+                  >
+                    Nanny profile
+                  </Link>
                 </>
               )}
             </nav>
@@ -122,22 +129,15 @@ export default function Header() {
               )}
               {isAuthenticated && (
                 <>
-                  {user?.role === Role.NANNY && (
-                    <Link href="/nanny/profile" className={getUserProfileLinkClassName(pathname === "/nanny/profile")}>
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand">
-                        {user?.name?.[0]}
-                      </div>
-                      <span>{user?.name}</span>
-                    </Link>
-                  )}
-                  {user?.role === Role.PARENT && (
-                    <Link href="/profile" className={getUserProfileLinkClassName(isUserProfileActive)}>
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand">
-                        {user?.name?.[0]}
-                      </div>
-                      <span>{user?.name}</span>
-                    </Link>
-                  )}
+                  <Link
+                    href="/profile"
+                    className={getUserProfileLinkClassName(isUserProfileActive)}
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand">
+                      {user?.name?.[0]}
+                    </div>
+                    <span>{user?.name}</span>
+                  </Link>
 
                   <Button variant="outline" onClick={handleLogout} size="lg">
                     Log out

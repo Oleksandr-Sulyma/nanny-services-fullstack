@@ -1,12 +1,12 @@
 import type {
-  UpdateUserAvatarPayload,
-  UpdateUserAvatarResponse,
+  UpdateUserProfilePayload,
+  UpdateUserProfileResponse,
 } from "@/types/types";
 
-export async function updateUserAvatar(
-  payload: UpdateUserAvatarPayload,
-): Promise<UpdateUserAvatarResponse> {
-  const res = await fetch("/api/users/avatar", {
+export async function updateUserProfile(
+  payload: UpdateUserProfilePayload,
+): Promise<UpdateUserProfileResponse> {
+  const res = await fetch("/api/users/profile", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -17,7 +17,9 @@ export async function updateUserAvatar(
   const response = await res.json();
 
   if (!res.ok) {
-    throw new Error(response.message ?? `Failed to update avatar: ${res.status}`);
+    throw new Error(
+      response.message ?? `Failed to update profile: ${res.status}`,
+    );
   }
 
   return response;
