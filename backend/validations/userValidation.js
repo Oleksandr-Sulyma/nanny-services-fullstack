@@ -1,14 +1,5 @@
 import { Joi, Segments } from "celebrate";
-import { passwordField } from "./commonValidation.js";
-
-export const updateAvatarSchema = {
-  [Segments.BODY]: Joi.object({
-    avatar: Joi.string().uri().required().messages({
-      "string.uri": "Avatar must be a valid URL",
-      "any.required": "Avatar URL is a required field",
-    }),
-  }),
-};
+import { passwordField, emailField, nameField } from "./commonValidation.js";
 
 export const updatePasswordSchema = {
   [Segments.BODY]: Joi.object({
@@ -17,5 +8,25 @@ export const updatePasswordSchema = {
       "any.required": "oldPassword is a required field",
     }),
     newPassword: passwordField,
+  }),
+};
+
+export const updateProfileSchema = {
+  [Segments.BODY]: Joi.object({
+    name: nameField,
+    email: emailField,
+    avatar: Joi.string().uri().allow("").messages({
+      "string.uri": "Avatar must be a valid URL",
+    }),
+  }).min(1),
+};
+
+
+export const updateAvatarSchema = {
+  [Segments.BODY]: Joi.object({
+    avatar: Joi.string().uri().required().messages({
+      "string.uri": "Avatar must be a valid URL",
+      "any.required": "Avatar URL is a required field",
+    }),
   }),
 };

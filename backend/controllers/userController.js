@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import { User } from "../models/User.js";
 import { Nanny } from "../models/Nanny.js";
 import { catchAsync } from "../utils/catchAsync.js";
+import { cloudinary } from "../config/cloudinary.js";
 
 export const getCurrentUser = catchAsync(async (req, res) => {
   const user = await User.findById(req.user.id).populate({
@@ -82,5 +83,34 @@ export const toggleFavoriteNanny = catchAsync(async (req, res) => {
   res.status(200).json({
     message: isFavorite ? "Removed from favorites" : "Added to favorites",
     favorites: user.favorites,
+  });
+});
+
+export const updateProfile = catchAsync(async (req, res) => {
+  const { name, email, avatar } = req.body;
+
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    throw createHttpError(404, "User not found");
+  }
+
+  if (email && email !== user.email) {
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      throw createHttpError(409, "A user with this email already exists");
+    }
+  }
+
+  if (name !== undefined) user.name = name;
+  if (email !== undefined) user.email = email;
+  if (avatar !== undefined) user.avatar = avatar;
+
+  await user.save();
+
+  res.status(200).json({
+    message: "User profile updated successfully",
+    data: user,
   });
 });
