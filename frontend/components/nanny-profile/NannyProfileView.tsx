@@ -95,7 +95,6 @@ export default function NannyProfileView() {
                 value={formatDate(nanny.birthday)}
               />
               <ProfileField label="Experience" value={nanny.experience} />
-              <ProfileField label="Education" value={nanny.education} />
               <ProfileField label="Kids age" value={nanny.kids_age} />
               <ProfileField
                 label="Price per hour"
@@ -105,6 +104,7 @@ export default function NannyProfileView() {
                     : null
                 }
               />
+              <ProfileField label="Education" value={nanny.education} />
               <ProfileField
                 label="Characters"
                 value={

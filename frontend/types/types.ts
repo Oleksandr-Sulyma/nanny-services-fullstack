@@ -197,7 +197,6 @@ export type LogoutResponse = {
 };
 
 export type UpdateNannyProfilePayload = {
-  avatar_url?: string;
   birthday?: string;
   experience?: string;
   education?: string;
