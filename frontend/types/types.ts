@@ -235,3 +235,21 @@ export type UploadAvatarResponse = {
   };
 };
 
+export type CreateAppointmentPayload = {
+  parentName: string;
+  email: string;
+  address: string;
+  phone: string;
+  childAge: string;
+  scheduledAt: string;
+  comment?: string;
+};
+
+export type CreateAppointmentResponse = {
+  message: string;
+  data: Appointment;
+};
+
+export type AppointmentsResponse = {
+  data: Appointment[];
+};

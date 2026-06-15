@@ -5,10 +5,11 @@ import { X } from "lucide-react";
 interface ModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  title: string;
+  title?: string;
   description?: string;
   children: ReactNode;
   maxWidth?: string;
+  contentClassName?: string;
 }
 
 export default function Modal({
@@ -18,6 +19,7 @@ export default function Modal({
   description,
   children,
   maxWidth = "max-w-[566px]",
+  contentClassName = "max-w-[438px]",
 }: ModalProps) {
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
@@ -37,17 +39,21 @@ export default function Modal({
             </button>
           </Dialog.Close>
 
-          <Dialog.Title className="text-3xl md:text-[40px] font-semibold tracking-tight text-gray-900 leading-tight">
-            {title}
-          </Dialog.Title>
+          <div className={`mx-auto w-full ${contentClassName}`}>
+            {title && (
+              <Dialog.Title className="text-[32px] font-medium leading-[1.2] tracking-[-0.02em] text-foreground md:text-[40px]">
+                {title}
+              </Dialog.Title>
+            )}
 
-          {description && (
-            <Dialog.Description className="mt-5 text-base text-gray-500/90 leading-relaxed">
-              {description}
-            </Dialog.Description>
-          )}
+            {description && (
+              <Dialog.Description className="mt-5 text-base leading-[1.25] text-(--color-muted)">
+                {description}
+              </Dialog.Description>
+            )}
 
-          <div className="mt-5">{children}</div>
+            <div className="mt-5">{children}</div>
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

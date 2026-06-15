@@ -1,7 +1,18 @@
 import { Router } from "express";
 import { celebrate } from "celebrate";
-import { updateAppointmentStatus, completeAppointment, cancelAppointment, getMyAppointments, getIncomingAppointments, createReview } from "../controllers/appointmentController.js";
-import { updateAppointmentStatusSchema, appointmentIdSchema, createReviewSchema } from "../validations/appointmentsValidation.js";
+import {
+  updateAppointmentStatus,
+  completeAppointment,
+  cancelAppointment,
+  getMyAppointments,
+  getIncomingAppointments,
+  createReview,
+} from "../controllers/appointmentController.js";
+import {
+  updateAppointmentStatusSchema,
+  appointmentIdSchema,
+  createReviewSchema,
+} from "../validations/appointmentsValidation.js";
 import { authenticate } from "../middleware/authenticate.js";
 import { authorize } from "../middleware/authorize.js";
 
@@ -31,19 +42,13 @@ router.patch(
   cancelAppointment,
 );
 
-router.get(
-    "/my",
-    authenticate,
-    authorize("parent"),
-    getMyAppointments,
-
-);
+router.get("/my", authenticate, authorize("parent"), getMyAppointments);
 
 router.get(
-    "/incoming",
-    authenticate,
-    authorize("nanny"),
-    getIncomingAppointments,
+  "/incoming",
+  authenticate,
+  authorize("nanny"),
+  getIncomingAppointments,
 );
 
 router.post(
@@ -53,6 +58,5 @@ router.post(
   celebrate(createReviewSchema),
   createReview,
 );
-
 
 export default router;

@@ -14,6 +14,8 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { getNannyDetails } from "@/lib/nanniesApi";
 import { toggleFavoriteRequest } from "@/lib/favoritesApi";
 import Spinner from "@/components/ui/Spinner";
+import Modal from "@/components/ui/Modal";
+import AppointmentForm from "@/components/appointments/AppointmentForm";
 
 type NannyCardProps = {
   nanny: Nanny;
@@ -30,6 +32,7 @@ export default function NannyCard({ nanny }: NannyCardProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isReviewsLoading, setIsReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
+  const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const { isAuthenticated } = useAuthStore();
 
   const handleFavoriteClick = async () => {
@@ -60,6 +63,15 @@ export default function NannyCard({ nanny }: NannyCardProps) {
     } finally {
       setIsReviewsLoading(false);
     }
+  };
+
+  const handleAppointmentClick = () => {
+    if (!isAuthenticated) {
+      alert("Please log in to make an appointment");
+      return;
+    }
+
+    setIsAppointmentOpen(true);
   };
 
   const allowedAvatarHosts = ["ftp.goit.study", "res.cloudinary.com"];
@@ -169,7 +181,11 @@ export default function NannyCard({ nanny }: NannyCardProps) {
               {!isReviewsLoading && !reviewsError && (
                 <>
                   <NannyReviews reviews={reviews} />
-                  <Button size="md" className="w-[215px] self-start">
+                  <Button
+                    size="md"
+                    className="w-[215px] self-start"
+                    onClick={handleAppointmentClick}
+                  >
                     Make an appointment
                   </Button>
                 </>
@@ -178,6 +194,19 @@ export default function NannyCard({ nanny }: NannyCardProps) {
           )}
         </div>
       </div>
+      <Modal
+        isOpen={isAppointmentOpen}
+        onOpenChange={setIsAppointmentOpen}
+        title="Make an appointment with a babysitter"
+        description="Arranging a meeting with a caregiver for your child is the first step to creating a safe and comfortable environment. Fill out the form below so we can match you with the perfect care partner."
+        maxWidth="max-w-[600px]"
+        contentClassName="max-w-[472px]"
+      >
+        <AppointmentForm
+          nanny={nanny}
+          onSuccess={() => setIsAppointmentOpen(false)}
+        />
+      </Modal>
     </li>
   );
 }
