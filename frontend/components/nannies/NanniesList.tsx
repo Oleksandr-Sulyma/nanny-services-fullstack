@@ -7,10 +7,10 @@ type NannyListProps = {
 
 export default function NanniesList({nannies}: NannyListProps) {
   return (
-      <ul className="flex flex-col gap-8">
-        {nannies.map((nanny) => (
-          <NannyCard key={nanny.id} nanny={nanny} />
-        ))}
-      </ul>
+    <ul className="flex flex-col gap-8">
+      {nannies.map((nanny) => (
+        <NannyCard key={nanny.id} nanny={nanny} />
+      ))}
+    </ul>
   );
 }

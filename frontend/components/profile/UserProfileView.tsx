@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import ProfileField from "@/components/ui/ProfileField";
 import { uploadAvatarFile } from "@/lib/uploadsApi";
 import { Role } from "@/types/types";
+import Spinner from "@/components/ui/Spinner";
 
 type UserProfileFormData = {
   name: string;
@@ -90,7 +91,7 @@ export default function UserProfileView() {
 
   return (
     <div>
-      {isLoading && <p>Loading...</p>}
+      {isLoading && <Spinner />}
       {!user && <p>Please log in to view your profile</p>}
 
       {user && (

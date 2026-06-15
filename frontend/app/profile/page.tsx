@@ -1,3 +1,4 @@
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import UserProfileView from "@/components/profile/UserProfileView";
 
 export default function ProfilePage() {
@@ -5,7 +6,9 @@ export default function ProfilePage() {
     <main className="app-container py-10">
       <h1 className="text-3xl font-medium">My profile</h1>
       <div className="mt-8">
-        <UserProfileView />
+        <ProtectedRoute>
+          <UserProfileView />
+        </ProtectedRoute>
       </div>
     </main>
   );

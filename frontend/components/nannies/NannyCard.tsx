@@ -13,6 +13,7 @@ import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getNannyDetails } from "@/lib/nanniesApi";
 import { toggleFavoriteRequest } from "@/lib/favoritesApi";
+import Spinner from "@/components/ui/Spinner";
 
 type NannyCardProps = {
   nanny: Nanny;
@@ -34,16 +35,15 @@ export default function NannyCard({ nanny }: NannyCardProps) {
   const handleFavoriteClick = async () => {
     try {
       if (!isAuthenticated) {
-      alert("Please log in to add nannies to favorites");
-      return;
-    }
-    const { favorites } = await toggleFavoriteRequest(nanny.id);
-    setFavorites(favorites);
+        alert("Please log in to add nannies to favorites");
+        return;
+      }
+      const { favorites } = await toggleFavoriteRequest(nanny.id);
+      setFavorites(favorites);
     } catch (error) {
       console.error(error);
-      alert("Failed to update favorites")
+      alert("Failed to update favorites");
     }
-    
   };
 
   const handleReadMore = async () => {
@@ -62,6 +62,16 @@ export default function NannyCard({ nanny }: NannyCardProps) {
     }
   };
 
+  const allowedAvatarHosts = ["ftp.goit.study", "res.cloudinary.com"];
+
+  const hasAllowedAvatarUrl = (() => {
+    try {
+      return allowedAvatarHosts.includes(new URL(nanny.avatar_url).hostname);
+    } catch {
+      return false;
+    }
+  })();
+
   return (
     <li className="relative flex flex-col gap-4 rounded-3xl bg-surface p-6">
       <button
@@ -76,13 +86,19 @@ export default function NannyCard({ nanny }: NannyCardProps) {
       </button>
       <div className="flex gap-4">
         <div className="relative flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-[30px] border-2 border-brand-soft">
-          <Image
-            className="h-24 w-24 rounded-[15px] object-cover"
-            src={nanny.avatar_url}
-            alt={nanny.name}
-            width={96}
-            height={96}
-          />
+          {hasAllowedAvatarUrl ? (
+            <Image
+              className="h-24 w-24 rounded-[15px] object-cover"
+              src={nanny.avatar_url}
+              alt={nanny.name}
+              width={96}
+              height={96}
+            />
+          ) : (
+            <div className="flex h-24 w-24 items-center justify-center rounded-[15px] bg-brand-soft text-3xl font-medium text-brand">
+              {nanny.name?.charAt(0).toUpperCase() || "?"}
+            </div>
+          )}
           <span className="absolute right-3 top-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white">
             <span className="h-[9px] w-[9px] rounded-full bg-[#38CD3E]" />
           </span>
@@ -149,7 +165,7 @@ export default function NannyCard({ nanny }: NannyCardProps) {
                   {reviewsError}
                 </p>
               )}
-              {isReviewsLoading && <p>Loading reviews...</p>}
+              {isReviewsLoading && <Spinner label="Loading reviews..." />}
               {!isReviewsLoading && !reviewsError && (
                 <>
                   <NannyReviews reviews={reviews} />

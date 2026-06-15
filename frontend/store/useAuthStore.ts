@@ -8,11 +8,13 @@ export const useAuthStore = create<AuthState>()((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
+  isInitialized: false,
 
   setAuth: (user) => {
     set({
       user,
       isAuthenticated: true,
+      isInitialized: true,
     });
   },
 
@@ -20,6 +22,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
     set({
       user: null,
       isAuthenticated: false,
+      isInitialized: true,
     });
   },
 
@@ -38,6 +41,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       set({
         user: response.data,
         isAuthenticated: true,
+        isInitialized: true,
       });
 
       const favoriteIds = getFavoriteIds(response.data.favorites);
@@ -47,12 +51,14 @@ export const useAuthStore = create<AuthState>()((set) => ({
       set({
         user: null,
         isAuthenticated: false,
+        isInitialized: true,
       });
       const clearFavorites = useFavoritesStore.getState().clearFavorites;
       clearFavorites();
     } finally {
       set({
         isLoading: false,
+        isInitialized: true,
       });
     }
   },

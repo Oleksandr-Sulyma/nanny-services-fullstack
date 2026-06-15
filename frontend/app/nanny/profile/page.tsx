@@ -1,4 +1,6 @@
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import NannyProfileView from "@/components/nanny-profile/NannyProfileView";
+import { Role } from "@/types/types";
 
 export default function NannyProfilePage() {
   return (
@@ -9,7 +11,9 @@ export default function NannyProfilePage() {
       </p>
 
       <div className="mt-8">
-        <NannyProfileView />
+        <ProtectedRoute allowedRoles={[Role.NANNY]}>
+          <NannyProfileView />
+        </ProtectedRoute>
       </div>
     </main>
   );

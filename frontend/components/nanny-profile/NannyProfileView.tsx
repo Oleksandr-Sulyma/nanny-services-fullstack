@@ -9,6 +9,7 @@ import NannyProfileForm from "./NannyProfileForm";
 import { formatDate } from "@/lib/date";
 import { formatLocationPart } from "@/lib/format";
 import ProfileField from "@/components/ui/ProfileField";
+import Spinner from "@/components/ui/Spinner";
 
 export default function NannyProfileView() {
   const [nanny, setNanny] = useState<Nanny | null>(null);
@@ -34,7 +35,7 @@ export default function NannyProfileView() {
   }, []);
   return (
     <div>
-      {isLoading && <p>Loading...</p>}
+      {isLoading && <Spinner />}
       {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
       {nanny && (
         <section className="rounded-3xl bg-surface p-6">

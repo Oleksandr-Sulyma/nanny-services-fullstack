@@ -54,7 +54,11 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-brand text-white">
+      <header
+        className={`text-white ${
+          isHomeActive ? "absolute left-0 top-0 z-30 w-full" : "bg-brand"
+        }`}
+      >
         <div className="app-container flex h-22 items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/" className="text-xl font-bold">

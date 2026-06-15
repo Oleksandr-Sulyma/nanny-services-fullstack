@@ -98,6 +98,7 @@ export type AuthState = {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
   setAuth: (user: User) => void;
   clearAuth: () => void;
   setLoading: (loading: boolean) => void;
