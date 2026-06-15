@@ -23,13 +23,19 @@ export default function FavoritesView() {
     .filter((nanny) => favoriteIds.includes(nanny.id));
 
   useEffect(() => {
-    const hasFavoriteIds = favoriteIds.length > 0;
-    const hasLoadedFavoriteNannies = favoriteNannies.length > 0;
+    const hasMissingFavoriteNannies =
+      favoriteIds.length > favoriteNannies.length;
 
-    if (user && hasFavoriteIds && !hasLoadedFavoriteNannies) {
+    if (user && hasMissingFavoriteNannies && !isLoading) {
       fetchCurrentUser();
     }
-  }, [favoriteIds.length, favoriteNannies.length, fetchCurrentUser, user]);
+  }, [
+    favoriteIds.length,
+    favoriteNannies.length,
+    fetchCurrentUser,
+    isLoading,
+    user,
+  ]);
 
   if (isLoading) {
     return <Spinner label="Loading favorites..." />;

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { Menu, X } from "lucide-react";
 import ThemeSwitcher from "./ThemeSwitcher";
 import { useAuthStore } from "@/store/useAuthStore";
 import { Role } from "@/types/types";
@@ -12,6 +13,7 @@ import LoginForm from "@/components/auth/LoginForm";
 import Button from "@/components/ui/Button";
 import { logoutRequest } from "@/lib/authApi";
 import { useFavoritesStore } from "@/store/useFavoritesStore";
+import MobileMenu from "./MobileMenu";
 
 export default function Header() {
   const pathname = usePathname();
@@ -25,6 +27,7 @@ export default function Header() {
   const { user, isAuthenticated, clearAuth } = useAuthStore();
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const router = useRouter();
   const clearFavorites = useFavoritesStore((state) => state.clearFavorites);
 
@@ -34,9 +37,28 @@ export default function Header() {
     } finally {
       clearAuth();
       clearFavorites();
+      setIsMobileMenuOpen(false);
       router.push("/");
     }
   };
+
+  const openLoginModal = () => {
+    setIsMobileMenuOpen(false);
+    setIsLoginOpen(true);
+  };
+
+  const openRegisterModal = () => {
+    setIsMobileMenuOpen(false);
+    setIsRegisterOpen(true);
+  };
+
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
 
   const getNavLinkClassName = (isActive: boolean) =>
     `relative pb-3 text-base font-medium ${
@@ -118,14 +140,14 @@ export default function Header() {
                   <Button
                     variant="outline"
                     size="lg"
-                    onClick={() => setIsLoginOpen(true)}
+                    onClick={openLoginModal}
                   >
                     Log In
                   </Button>
                   <Button
                     variant="primary"
                     size="lg"
-                    onClick={() => setIsRegisterOpen(true)}
+                    onClick={openRegisterModal}
                   >
                     Registration
                   </Button>
@@ -150,11 +172,33 @@ export default function Header() {
               )}
             </div>
           </div>
-          <button type="button" className="lg:hidden">
-            Menu
+          <button
+            type="button"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/40 lg:hidden"
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen((current) => !current)}
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
           </button>
         </div>
       </header>
+
+      <MobileMenu
+        isOpen={isMobileMenuOpen}
+        user={user}
+        isAuthenticated={isAuthenticated}
+        pathname={pathname}
+        onClose={() => setIsMobileMenuOpen(false)}
+        onLoginClick={openLoginModal}
+        onRegisterClick={openRegisterModal}
+        onLogoutClick={handleLogout}
+      />
+
       <Modal
         isOpen={isLoginOpen}
         onOpenChange={setIsLoginOpen}

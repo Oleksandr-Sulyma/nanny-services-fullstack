@@ -76,7 +76,7 @@ export default function NannyCard({ nanny }: NannyCardProps) {
     <li className="relative flex flex-col gap-4 rounded-3xl bg-surface p-6">
       <button
         type="button"
-        className="absolute right-6 top-6 transition-colors hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand"
+        className="absolute right-6 top-6 rounded-full transition-colors hover:text-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         onClick={handleFavoriteClick}
       >
