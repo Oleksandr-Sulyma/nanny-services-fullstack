@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import type { Nanny, Review } from "@/types/types";
 import { getAgeFromBirthday } from "@/lib/date";
@@ -75,7 +76,7 @@ export default function NannyCard({ nanny }: NannyCardProps) {
       </button>
       <div className="flex gap-4">
         <div className="relative flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-[30px] border-2 border-brand-soft">
-          <img
+          <Image
             className="h-24 w-24 rounded-[15px] object-cover"
             src={nanny.avatar_url}
             alt={nanny.name}

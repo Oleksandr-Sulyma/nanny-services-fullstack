@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getMyNannyProfile } from "@/lib/nanniesApi";
 import type { Nanny } from "@/types/types";
@@ -40,7 +41,7 @@ export default function NannyProfileView() {
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="flex items-center gap-4">
               {nanny.avatar_url ? (
-                <img
+                <Image
                   src={nanny.avatar_url}
                   alt={nanny.name}
                   className="h-20 w-20 rounded-2xl object-cover"

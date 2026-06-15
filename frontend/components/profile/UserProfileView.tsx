@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useState, useRef } from "react";
@@ -97,12 +98,13 @@ export default function UserProfileView() {
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div className="flex items-center gap-4">
               {displayedAvatar ? (
-                <img
+                <Image
                   src={displayedAvatar}
                   alt={user.name}
                   className="h-20 w-20 rounded-2xl object-cover"
                   width={80}
                   height={80}
+                  unoptimized={displayedAvatar.startsWith("blob:")}
                 />
               ) : (
                 <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-soft text-2xl font-medium text-brand">
@@ -131,12 +133,13 @@ export default function UserProfileView() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                 {displayedAvatar ? (
-                  <img
+                  <Image
                     src={displayedAvatar}
                     alt={user.name}
                     className="h-24 w-24 rounded-2xl object-cover"
                     width={96}
                     height={96}
+                    unoptimized={displayedAvatar.startsWith("blob:")}
                   />
                 ) : (
                   <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-brand-soft text-3xl font-medium text-brand">
