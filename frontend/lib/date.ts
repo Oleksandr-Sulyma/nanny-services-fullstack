@@ -35,3 +35,23 @@ export function formatDate(value?: string): string {
 
   return new Intl.DateTimeFormat("en-GB").format(date);
 }
+
+export function formatDateTime(value?: string): string {
+  if (!value) {
+    return "Not specified";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Invalid date";
+  }
+
+  return new Intl.DateTimeFormat("uk-UA", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}

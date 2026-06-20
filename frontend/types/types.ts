@@ -63,15 +63,15 @@ export type User = {
 
 export type Appointment = {
   id: string;
-  parentId: string;
-  nannyId: string;
+  parentId: string | User;
+  nannyId: string | Nanny | null;
   parentName: string;
   email: string;
   address: string;
   phone: string;
   childAge: string;
   scheduledAt: string;
-  comment: string;
+  comment?: string;
   status: AppointmentStatus;
 };
 
@@ -245,7 +245,7 @@ export type CreateAppointmentPayload = {
   comment?: string;
 };
 
-export type CreateAppointmentResponse = {
+export type AppointmentResponse  = {
   message: string;
   data: Appointment;
 };
@@ -253,3 +253,5 @@ export type CreateAppointmentResponse = {
 export type AppointmentsResponse = {
   data: Appointment[];
 };
+
+export type AppointmentStatusUpdate  = "accepted" | "rejected";

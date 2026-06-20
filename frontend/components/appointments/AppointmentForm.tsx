@@ -64,9 +64,12 @@ export default function AppointmentForm({
     setErrorMessage("");
 
     try {
+      const comment = data.comment?.trim();
+
       await createAppointmentRequest(nanny.id, {
         ...data,
         scheduledAt: new Date(data.scheduledAt).toISOString(),
+        comment: comment || undefined,
       });
 
       onSuccess?.();
