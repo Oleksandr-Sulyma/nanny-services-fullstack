@@ -10,22 +10,36 @@ export async function GET() {
       return Response.json({ message: "Unauthorized" }, { status: 401 });
     }
     
-    const res = await fetch(`${API_URL}/appointments/me`, {
+    const res = await fetch(`${API_URL}/appointments/my`, {
       cache: "no-store",
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
 
-    const response = await res.json();
+    const contentType = res.headers.get("content-type") ?? "";
+    const response = contentType.includes("application/json")
+      ? await res.json()
+      : null;
 
     if (!res.ok) {
-      return Response.json(response, { status: res.status });
+      return Response.json(
+        response ?? { message: `Backend request failed: ${res.status}` },
+        { status: res.status },
+      );
+    }
+
+    if (!response) {
+      return Response.json(
+        { message: "Backend returned an invalid response" },
+        { status: 502 },
+      );
     }
 
     return Response.json(response);
   } catch (error) {
-    console.error("Error:", error);
-    return Response.json({ message: "Network error" }, { status: 502 });
+    const message = error instanceof Error ? error.message : "Network error";
+    console.error("Failed to load my appointments:", error);
+    return Response.json({ message }, { status: 502 });
   }
 }

@@ -2,14 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
-import AppointmentCard from "./AppointmentCard";
-import type { Appointment } from "@/types/types";
 import {
-  getIncomingAppointmentsRequest,
-  updateAppointmentStatusRequest,
+  cancelAppointmentRequest,
+  completeAppointmentRequest,
+  getMyAppointmentsRequest,
 } from "@/lib/appointmentsApi";
+import MyAppointmentCard from "./MyAppointmentCard";
+import type { Appointment } from "@/types/types";
 
-export default function IncomingAppointmentsView() {
+export default function MyAppointmentsView() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
@@ -20,7 +21,7 @@ export default function IncomingAppointmentsView() {
   useEffect(() => {
     const loadAppointments = async () => {
       try {
-        const response = await getIncomingAppointmentsRequest();
+        const response = await getMyAppointmentsRequest();
         setAppointments(response.data);
       } catch (error) {
         setErrorMessage(
@@ -32,20 +33,23 @@ export default function IncomingAppointmentsView() {
         setIsLoading(false);
       }
     };
+
     loadAppointments();
   }, []);
 
-  const handleStatusChange = async (
+  const handleAppointmentAction = async (
     appointmentId: string,
-    status: "accepted" | "rejected",
+    action: "cancel" | "complete",
   ) => {
     try {
       setUpdatingAppointmentId(appointmentId);
       setErrorMessage("");
-      const response = await updateAppointmentStatusRequest(
-        appointmentId,
-        status,
-      );
+
+      const response =
+        action === "cancel"
+          ? await cancelAppointmentRequest(appointmentId)
+          : await completeAppointmentRequest(appointmentId);
+
       setAppointments((currentAppointments) =>
         currentAppointments.map((appointment) =>
           appointment.id === appointmentId ? response.data : appointment,
@@ -61,26 +65,34 @@ export default function IncomingAppointmentsView() {
       setUpdatingAppointmentId(null);
     }
   };
+
   return (
     <div className="flex flex-col gap-6">
-      {isLoading && <Spinner />}
+      {isLoading && <Spinner label="Loading appointments..." />}
+
       {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
+
       {!isLoading && !errorMessage && appointments.length === 0 && (
         <div className="rounded-3xl bg-surface p-8 text-center">
-          <p className="text-lg font-medium">No incoming appointments yet</p>
+          <p className="text-lg font-medium">No appointments yet</p>
           <p className="mt-2 text-sm text-(--color-muted)">
-            Appointment requests from parents will appear here.
+            Your appointments will appear here.
           </p>
         </div>
       )}
+
       {!isLoading && !errorMessage && appointments.length > 0 && (
         <ul className="flex flex-col gap-4 md:gap-6">
           {appointments.map((appointment) => (
-            <AppointmentCard
+            <MyAppointmentCard
               key={appointment.id}
               appointment={appointment}
-              onAccept={() => handleStatusChange(appointment.id, "accepted")}
-              onReject={() => handleStatusChange(appointment.id, "rejected")}
+              onCancel={() =>
+                handleAppointmentAction(appointment.id, "cancel")
+              }
+              onComplete={() =>
+                handleAppointmentAction(appointment.id, "complete")
+              }
               isUpdating={updatingAppointmentId === appointment.id}
             />
           ))}

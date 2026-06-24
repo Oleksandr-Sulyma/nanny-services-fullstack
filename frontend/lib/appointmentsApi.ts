@@ -76,3 +76,39 @@ export async function getMyAppointmentsRequest(): Promise<AppointmentsResponse> 
 
   return response;
 }
+
+export async function cancelAppointmentRequest(
+  appointmentId: string,
+): Promise<AppointmentResponse> {
+  const res = await fetch(`/api/appointments/${appointmentId}/cancel`, {
+    method: "PATCH",
+  });
+
+  const response = await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      response.message ?? `Unable to cancel appointment: ${res.status}`,
+    );
+  }
+
+  return response;
+}
+
+export async function completeAppointmentRequest(
+  appointmentId: string,
+): Promise<AppointmentResponse> {
+  const res = await fetch(`/api/appointments/${appointmentId}/complete`, {
+    method: "PATCH",
+  });
+
+  const response = await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      response.message ?? `Unable to complete appointment: ${res.status}`,
+    );
+  }
+
+  return response;
+}
