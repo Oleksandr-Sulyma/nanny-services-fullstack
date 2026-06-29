@@ -3,12 +3,13 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getMyNannyProfile } from "@/lib/nanniesApi";
-import type { Nanny } from "@/types/types";
+import type { Nanny, Review } from "@/types/types";
 import Button from "@/components/ui/Button";
 import NannyProfileForm from "./NannyProfileForm";
 import { formatDate } from "@/lib/date";
 import { formatLocationPart } from "@/lib/format";
 import ProfileField from "@/components/ui/ProfileField";
+import NannyReviews from "@/components/nannies/NannyReviews";
 import Spinner from "@/components/ui/Spinner";
 
 export default function NannyProfileView() {
@@ -16,12 +17,14 @@ export default function NannyProfileView() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
         const response = await getMyNannyProfile();
-        setNanny(response.data);
+        setNanny(response.data.nanny);
+        setReviews(response.data.reviews);
       } catch (error) {
         setErrorMessage(
           error instanceof Error ? error.message : "Failed to load profile",
@@ -91,6 +94,7 @@ export default function NannyProfileView() {
                 label="Status"
                 value={nanny.isProfileComplete ? "Complete" : "Draft"}
               />
+              <ProfileField label="Rating" value={nanny.rating} />
               <ProfileField label="Name" value={nanny.name} />
               <ProfileField
                 label="Birthday"
@@ -145,6 +149,15 @@ export default function NannyProfileView() {
                       : null
                   }
                 />
+              </div>
+              <div className="md:col-span-2">
+                <h3 className="mb-4 text-lg font-medium">Reviews</h3>
+
+                {reviews.length > 0 ? (
+                  <NannyReviews reviews={reviews} />
+                ) : (
+                  <p className="text-sm text-(--color-muted)">No reviews yet</p>
+                )}
               </div>
             </div>
           )}

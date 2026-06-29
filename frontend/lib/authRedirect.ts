@@ -9,7 +9,7 @@ export async function getAuthRedirectPath(user: User): Promise<string | null> {
   if (user.role === Role.NANNY) {
     const response = await getMyNannyProfile();
 
-    return response.data.isProfileComplete
+    return response.data.nanny.isProfileComplete
       ? "/appointments/incoming"
       : "/nanny/profile";
   }

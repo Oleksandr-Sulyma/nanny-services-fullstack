@@ -61,6 +61,27 @@ export default function IncomingAppointmentsView() {
       setUpdatingAppointmentId(null);
     }
   };
+
+  const statusOrder = {
+    pending: 0,
+    accepted: 1,
+    completed: 2,
+    cancelled: 3,
+    rejected: 4,
+  } as const;
+
+  const sortedAppointments = [...appointments].sort((a, b) => {
+    const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+
+    if (statusDiff !== 0) {
+      return statusDiff;
+    }
+
+    return (
+      new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime()
+    );
+  });
+
   return (
     <div className="flex flex-col gap-6">
       {isLoading && <Spinner />}
@@ -75,7 +96,7 @@ export default function IncomingAppointmentsView() {
       )}
       {!isLoading && !errorMessage && appointments.length > 0 && (
         <ul className="flex flex-col gap-4 md:gap-6">
-          {appointments.map((appointment) => (
+          {sortedAppointments.map((appointment) => (
             <AppointmentCard
               key={appointment.id}
               appointment={appointment}

@@ -48,8 +48,9 @@ describe("GET /api/nannies/me", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.status).toBe(200);
-    expect(response.body.data.name).toBe("Test Nanny");
-    expect(response.body.data.isProfileComplete).toBe(false);
+    expect(response.body.data.nanny.name).toBe("Test Nanny");
+    expect(response.body.data.nanny.isProfileComplete).toBe(false);
+    expect(response.body.data.reviews).toEqual([]);
   });
 });
 

@@ -79,10 +79,9 @@ export const getNannyById = catchAsync(async (req, res) => {
     throw createHttpError(404, "Nanny not found");
   }
 
-  const reviews = await Review.find({ nannyId }).populate(
-    "authorId",
-    "name avatar",
-  );
+  const reviews = await Review.find({ nannyId })
+    .populate("authorId", "name avatar")
+    .sort({ createdAt: -1 });
 
   res.status(200).json({
     data: {
@@ -131,7 +130,14 @@ export const getMyNannyProfile = catchAsync(async (req, res) => {
     throw createHttpError(404, "Nanny not found");
   }
 
+  const reviews = await Review.find({ nannyId: nanny.id })
+    .populate("authorId", "name avatar")
+    .sort({ createdAt: -1 });
+
   res.status(200).json({
-    data: nanny,
+    data: {
+      nanny,
+      reviews,
+    },
   });
 });

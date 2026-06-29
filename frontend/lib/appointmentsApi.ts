@@ -3,6 +3,8 @@ import type {
   AppointmentStatusUpdate,
   AppointmentsResponse,
   CreateAppointmentPayload,
+  CreateReviewPayload,
+  CreateReviewResponse
 } from "@/types/types";
 
 export async function createAppointmentRequest(
@@ -107,6 +109,29 @@ export async function completeAppointmentRequest(
   if (!res.ok) {
     throw new Error(
       response.message ?? `Unable to complete appointment: ${res.status}`,
+    );
+  }
+
+  return response;
+}
+
+export async function createReviewRequest(
+  appointmentId: string,
+  payload: CreateReviewPayload,
+): Promise<CreateReviewResponse> {
+  const res = await fetch(`/api/appointments/${appointmentId}/reviews`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const response = await res.json();
+
+  if (!res.ok) {
+    throw new Error(
+      response.message ?? `Unable to create review: ${res.status}`,
     );
   }
 

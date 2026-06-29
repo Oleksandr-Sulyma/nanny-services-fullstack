@@ -110,11 +110,14 @@ export const completeAppointment = catchAsync(async (req, res) => {
     appointmentId,
     { status: "completed" },
     { returnDocument: "after" },
-  );
+  ).populate("nannyId");
 
   res.status(200).json({
     message: "Appointment completed successfully",
-    data: completedAppointment,
+    data: {
+      ...completedAppointment.toJSON(),
+      hasReview: false,
+    },
   });
 });
 
@@ -143,7 +146,7 @@ export const cancelAppointment = catchAsync(async (req, res) => {
     appointmentId,
     { status: "cancelled" },
     { returnDocument: "after" },
-  );
+  ).populate("nannyId");
 
   res.status(200).json({
     message: "Appointment cancelled successfully",
@@ -158,12 +161,38 @@ export const getMyAppointments = catchAsync(async (req, res) => {
     .populate("nannyId")
     .sort({ createdAt: -1 });
 
+  const appointmentIds = appointments.map((appointment) => appointment.id);
+  const reviews = await Review.aggregate([
+    {
+      $match: {
+        authorId: new mongoose.Types.ObjectId(userId),
+      },
+    },
+    {
+      $project: {
+        appointmentId: { $toString: "$appointmentId" },
+      },
+    },
+    {
+      $match: {
+        appointmentId: { $in: appointmentIds },
+      },
+    },
+  ]);
+  const reviewedAppointmentIds = new Set(
+    reviews.map((review) => review.appointmentId),
+  );
+  const appointmentsWithReviewStatus = appointments.map((appointment) => ({
+    ...appointment.toJSON(),
+    hasReview: reviewedAppointmentIds.has(appointment.id),
+  }));
+
   res.status(200).json({
     message:
       appointments.length > 0
         ? "Your appointments"
         : "You haven't created any appointments yet",
-    data: appointments,
+    data: appointmentsWithReviewStatus,
   });
 });
 
@@ -185,12 +214,49 @@ export const getIncomingAppointments = catchAsync(async (req, res) => {
     .populate("parentId")
     .sort({ createdAt: -1 });
 
+  const appointmentIds = appointments.map((appointment) => appointment.id);
+
+  const reviews = await Review.aggregate([
+    {
+      $match: {
+        nannyId: new mongoose.Types.ObjectId(nanny.id),
+      },
+    },
+    {
+      $project: {
+        appointmentId: { $toString: "$appointmentId" },
+        rating: 1,
+        comment: 1,
+      },
+    },
+    {
+      $match: {
+        appointmentId: { $in: appointmentIds },
+      },
+    },
+  ]);
+
+  const reviewsByAppointmentId = new Map(
+    reviews.map((review) => [
+      review.appointmentId,
+      {
+        rating: review.rating,
+        comment: review.comment,
+      },
+    ]),
+  );
+
+  const appointmentsWithReviews = appointments.map((appointment) => ({
+    ...appointment.toJSON(),
+    review: reviewsByAppointmentId.get(appointment.id) ?? null,
+  }));
+
   res.status(200).json({
     message:
       appointments.length > 0
         ? "Incoming appointments"
         : "You don't have incoming appointments yet",
-    data: appointments,
+    data: appointmentsWithReviews,
   });
 });
 

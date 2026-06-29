@@ -61,6 +61,11 @@ export type User = {
   role: Role;
 };
 
+export type AppointmentReview = {
+  rating: number;
+  comment: string;
+};
+
 export type Appointment = {
   id: string;
   parentId: string | User;
@@ -73,6 +78,8 @@ export type Appointment = {
   scheduledAt: string;
   comment?: string;
   status: AppointmentStatus;
+  hasReview?: boolean;
+  review?: AppointmentReview | null;
 };
 
 export type NanniesState = {
@@ -190,7 +197,10 @@ export type LoginResponse = {
 };
 
 export type MyNannyProfileResponse = {
-  data: Nanny;
+  data: {
+    nanny: Nanny;
+    reviews: Review[];
+  };
 };
 
 export type LogoutResponse = {
@@ -255,3 +265,12 @@ export type AppointmentsResponse = {
 };
 
 export type AppointmentStatusUpdate  = "accepted" | "rejected";
+
+export type CreateReviewPayload = {
+  rating: number;
+  comment: string;
+};
+
+export type CreateReviewResponse = {
+  message: string;
+};

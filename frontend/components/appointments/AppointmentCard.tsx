@@ -34,6 +34,20 @@ export default function AppointmentCard({
           className="md:col-span-2"
         />
       </div>
+      {appointment.review && (
+  <div className="mt-6 rounded-3xl bg-background p-4">
+    <p className="font-medium">Parent review</p>
+
+    <div className="mt-3 grid gap-4 md:grid-cols-2">
+      <ProfileField label="Rating" value={appointment.review.rating} />
+      <ProfileField
+        label="Comment"
+        value={appointment.review.comment}
+        className="md:col-span-2"
+      />
+    </div>
+  </div>
+)}
       {appointment.status === "pending" && (
         <div className="mt-6 flex flex-wrap gap-3">
           <Button onClick={onAccept} disabled={isUpdating}>
