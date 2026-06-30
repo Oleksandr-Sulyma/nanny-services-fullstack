@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
+import EmptyState from "../ui/EmptyState";
 import AppointmentCard from "./AppointmentCard";
 import type { Appointment } from "@/types/types";
 import {
@@ -87,12 +88,10 @@ export default function IncomingAppointmentsView() {
       {isLoading && <Spinner />}
       {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
       {!isLoading && !errorMessage && appointments.length === 0 && (
-        <div className="rounded-3xl bg-surface p-8 text-center">
-          <p className="text-lg font-medium">No incoming appointments yet</p>
-          <p className="mt-2 text-sm text-(--color-muted)">
-            Appointment requests from parents will appear here.
-          </p>
-        </div>
+        <EmptyState
+          title="No incoming appointments yet"
+          description="Appointment requests from parents will appear here."
+        />
       )}
       {!isLoading && !errorMessage && appointments.length > 0 && (
         <ul className="flex flex-col gap-4 md:gap-6">

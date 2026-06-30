@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
+import EmptyState from "../ui/EmptyState";
 import {
   cancelAppointmentRequest,
   completeAppointmentRequest,
@@ -93,12 +94,10 @@ export default function MyAppointmentsView() {
       {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
 
       {!isLoading && !errorMessage && appointments.length === 0 && (
-        <div className="rounded-3xl bg-surface p-8 text-center">
-          <p className="text-lg font-medium">No appointments yet</p>
-          <p className="mt-2 text-sm text-(--color-muted)">
-            Your appointments will appear here.
-          </p>
-        </div>
+        <EmptyState
+          title="No appointments yet"
+          description="Your appointments will appear here."
+        />
       )}
 
       {!isLoading && !errorMessage && appointments.length > 0 && (

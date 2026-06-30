@@ -6,6 +6,7 @@ import ProfileField from "@/components/ui/ProfileField";
 import { formatDateTime } from "@/lib/date";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import StatusBadge from "../ui/StatusBadge";
 import ReviewForm from "./ReviewForm";
 
 type AppointmentCardProps = {
@@ -40,29 +41,52 @@ export default function MyAppointmentCard({
   const nanny = appointment.nannyId;
   const scheduledAt = formatDateTime(appointment.scheduledAt);
 
+  const handleCancelClick = () => {
+    const shouldCancel = window.confirm(
+      "Are you sure you want to cancel this appointment?",
+    );
+
+    if (!shouldCancel) return;
+
+    onCancel();
+  };
+
   return (
     <li className="rounded-3xl bg-surface p-6">
       <div className="grid gap-4 md:grid-cols-2">
-        <ProfileField label="Status" value={appointment.status} />
+        <div>
+          <p className="text-sm text-(--color-muted)">Status</p>
+          <div className="mt-1">
+            <StatusBadge status={appointment.status} />
+          </div>
+        </div>
         <ProfileField label="Nanny name" value={nanny.name} />
         <ProfileField label="Scheduled at" value={scheduledAt} />
         <ProfileField label="Child age" value={appointment.childAge} />
       </div>
       {appointment.status === "pending" && (
         <div className="mt-6">
-          <Button variant="ghost" onClick={onCancel} disabled={isUpdating}>
-            Cancel
+          <Button
+            variant="ghost"
+            onClick={handleCancelClick}
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Cancelling..." : "Cancel"}
           </Button>
         </div>
       )}
       {appointment.status === "accepted" && (
         <div className="mt-6 flex flex-wrap gap-3">
           <Button onClick={onComplete} disabled={isUpdating}>
-            Complete
+            {isUpdating ? "Completing..." : "Complete"}
           </Button>
 
-          <Button variant="ghost" onClick={onCancel} disabled={isUpdating}>
-            Cancel
+          <Button
+            variant="ghost"
+            onClick={handleCancelClick}
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Cancelling..." : "Cancel"}
           </Button>
         </div>
       )}
@@ -72,6 +96,11 @@ export default function MyAppointmentCard({
             Leave review
           </Button>
         </div>
+      )}
+      {appointment.status === "completed" && hasReview && (
+        <p className="mt-6 text-sm font-medium text-(--color-muted)">
+          Review submitted
+        </p>
       )}
 
       <Modal
