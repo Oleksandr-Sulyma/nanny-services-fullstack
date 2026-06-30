@@ -6,7 +6,7 @@ import ProfileField from "@/components/ui/ProfileField";
 import { formatDateTime } from "@/lib/date";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
-import StatusBadge from "../ui/StatusBadge";
+import StatusBadge from "@/components/ui/StatusBadge";
 import ReviewForm from "./ReviewForm";
 
 type AppointmentCardProps = {
@@ -53,17 +53,25 @@ export default function MyAppointmentCard({
 
   return (
     <li className="rounded-3xl bg-surface p-6">
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <p className="text-sm text-(--color-muted)">Status</p>
           <div className="mt-1">
             <StatusBadge status={appointment.status} />
           </div>
         </div>
+
+        <div className="md:text-right">
+          <p className="text-sm text-(--color-muted)">Scheduled at</p>
+          <p className="mt-1 font-medium">{scheduledAt}</p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
         <ProfileField label="Nanny name" value={nanny.name} />
-        <ProfileField label="Scheduled at" value={scheduledAt} />
         <ProfileField label="Child age" value={appointment.childAge} />
       </div>
+
       {appointment.status === "pending" && (
         <div className="mt-6">
           <Button
