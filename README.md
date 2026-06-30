@@ -211,4 +211,4 @@ The UI is based on the
 - Interactive API documentation: [Scalar API Reference](https://nanny-services-api.onrender.com/api-docs)
 - OpenAPI specification: [openapi.yaml](https://nanny-services-api.onrender.com/openapi.yaml)
 - Database: MongoDB Atlas
-- Frontend: Vercel-ready Next.js application
+- Frontend: [nanny-services-fullstack.vercel.app](https://nanny-services-fullstack.vercel.app/)
