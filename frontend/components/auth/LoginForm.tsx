@@ -12,6 +12,7 @@ import { getFavoriteIds } from "@/lib/favorites";
 import Button from "@/components/ui/Button";
 import { getAuthRedirectPath } from "@/lib/authRedirect";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/providers/ToastProvider";
 
 type LoginFormProps = {
   onSuccess?: () => void;
@@ -34,14 +35,12 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
   });
 
   const { setAuth } = useAuthStore();
-  const [errorMessage, setErrorMessage] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const { showToast } = useToast();
 
   const router = useRouter();
 
   const onSubmit = async (data: UserFormData) => {
-    setErrorMessage("");
-
     try {
       const response = await loginRequest(data);
       setAuth(response.data.user);
@@ -55,11 +54,12 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
         router.push(redirectPath);
       }
     } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Log in failed");
-      }
+      showToast({
+        variant: "error",
+        title: "Log in failed",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
     }
   };
 
@@ -107,8 +107,6 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
       <Button type="submit" className="h-12 w-full" disabled={isSubmitting}>
         {isSubmitting ? "Logging in..." : "Log In"}
       </Button>
-
-      {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
     </form>
   );
 }

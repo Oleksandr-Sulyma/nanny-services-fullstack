@@ -11,13 +11,15 @@ import { formatLocationPart } from "@/lib/format";
 import ProfileField from "@/components/ui/ProfileField";
 import NannyReviews from "@/components/nannies/NannyReviews";
 import Spinner from "@/components/ui/Spinner";
+import { useToast } from "@/components/providers/ToastProvider";
 
 export default function NannyProfileView() {
   const [nanny, setNanny] = useState<Nanny | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [hasLoadError, setHasLoadError] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -26,20 +28,28 @@ export default function NannyProfileView() {
         setNanny(response.data.nanny);
         setReviews(response.data.reviews);
       } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : "Failed to load profile",
-        );
+        setHasLoadError(true);
+        showToast({
+          variant: "error",
+          title: "Could not load profile",
+          description:
+            error instanceof Error ? error.message : "Please try again.",
+        });
       } finally {
         setIsLoading(false);
       }
     };
 
     loadProfile();
-  }, []);
+  }, [showToast]);
   return (
     <div>
       {isLoading && <Spinner />}
-      {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
+      {hasLoadError && !isLoading && (
+        <p className="text-sm text-(--color-muted)">
+          Profile could not be loaded.
+        </p>
+      )}
       {nanny && (
         <section className="rounded-3xl bg-surface p-6">
           <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">

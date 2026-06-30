@@ -6,6 +6,7 @@ import * as z from "zod";
 import type { Nanny, UpdateNannyProfilePayload } from "@/types/types";
 import Button from "@/components/ui/Button";
 import { updateMyNannyProfile } from "@/lib/nanniesApi";
+import { useToast } from "@/components/providers/ToastProvider";
 
 type NannyProfileFormProps = {
   nanny: Nanny;
@@ -62,6 +63,7 @@ export default function NannyProfileForm({
   onCancel,
   onSaved,
 }: NannyProfileFormProps) {
+  const { showToast } = useToast();
   const {
     register,
     handleSubmit,
@@ -112,8 +114,22 @@ export default function NannyProfileForm({
       characters: characters.length ? characters : undefined,
     };
 
-    const response = await updateMyNannyProfile(payload);
-    onSaved(response.data);
+    try {
+      const response = await updateMyNannyProfile(payload);
+      onSaved(response.data);
+      showToast({
+        variant: "success",
+        title: "Profile updated",
+        description: "Your nanny profile has been saved.",
+      });
+    } catch (error) {
+      showToast({
+        variant: "error",
+        title: "Could not update profile",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
+    }
   };
 
   const inputClassName =

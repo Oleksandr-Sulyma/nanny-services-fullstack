@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import AuthProvider from "@/components/providers/AuthProvider";
 import ThemeProvider from "@/components/providers/ThemeProvider";
+import ToastProvider from "@/components/providers/ToastProvider";
 
 import "./globals.css";
 
@@ -20,8 +21,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <ThemeProvider>
-            <Header />
-            {children}
+            <ToastProvider>
+              <Header />
+              {children}
+            </ToastProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

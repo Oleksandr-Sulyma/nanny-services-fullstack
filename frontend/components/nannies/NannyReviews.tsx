@@ -42,7 +42,7 @@ export default function NannyReviews({ reviews }: NannyReviewsProps) {
           size="md"
           onClick={() => setShowAll(true)}
           variant="ghost"
-          className="mx-auto w-fit"
+          className="w-full self-start sm:w-[215px]"
         >
           Show all reviews
         </Button>

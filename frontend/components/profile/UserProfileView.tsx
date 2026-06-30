@@ -11,6 +11,7 @@ import ProfileField from "@/components/ui/ProfileField";
 import { uploadAvatarFile } from "@/lib/uploadsApi";
 import { Role } from "@/types/types";
 import Spinner from "@/components/ui/Spinner";
+import { useToast } from "@/components/providers/ToastProvider";
 
 type UserProfileFormData = {
   name: string;
@@ -21,10 +22,10 @@ export default function UserProfileView() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const { user, isLoading, setAuth } = useAuthStore();
+  const { showToast } = useToast();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [previewUrl, setPreviewUrl] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
 
   const {
     register,
@@ -46,8 +47,6 @@ export default function UserProfileView() {
   };
 
   const onSubmit = async (data: UserProfileFormData) => {
-    setErrorMessage("");
-
     try {
       if (!user) return;
 
@@ -67,11 +66,19 @@ export default function UserProfileView() {
       setAuth(response.data);
       setIsEditing(false);
       setSelectedFile(null);
+      showToast({
+        variant: "success",
+        title: "Profile updated",
+        description: "Your changes have been saved.",
+      });
     } catch (error) {
       console.error("Failed to update profile:", error);
-      setErrorMessage(
-        error instanceof Error ? error.message : "Failed to update profile",
-      );
+      showToast({
+        variant: "error",
+        title: "Could not update profile",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
     }
   };
 
@@ -132,7 +139,7 @@ export default function UserProfileView() {
 
           {isEditing ? (
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-4">
                 {displayedAvatar ? (
                   <Image
                     src={displayedAvatar}
@@ -148,7 +155,7 @@ export default function UserProfileView() {
                   </div>
                 )}
 
-                <div className="flex min-w-0 flex-col gap-2">
+                <div className="flex min-w-0 flex-1 flex-col gap-2">
                   <p className="text-sm text-(--color-muted)">Profile photo</p>
                   <input
                     ref={fileInputRef}
@@ -162,7 +169,7 @@ export default function UserProfileView() {
                     variant="ghost"
                     size="md"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-fit"
+                    className="w-fit max-w-full"
                   >
                     {selectedFile ? "Change photo" : "Change photo"}
                   </Button>
@@ -203,10 +210,6 @@ export default function UserProfileView() {
                   )}
                 </div>
               </div>
-
-              {errorMessage && (
-                <p className="text-sm text-brand">{errorMessage}</p>
-              )}
 
               <div className="flex flex-wrap justify-end gap-3">
                 <Button

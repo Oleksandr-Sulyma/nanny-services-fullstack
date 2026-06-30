@@ -16,7 +16,7 @@ export default function LoadMoreButton({
       type="button"
       onClick={onClick}
       disabled={isLoading}
-      className="inline-flex min-h-12 items-center justify-center gap-2 rounded-[30px] bg-brand px-10 py-3 font-medium text-white transition-colors hover:bg-white hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-[30px] bg-brand px-10 py-3 font-medium text-white transition-colors hover:bg-white hover:text-brand disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
     >
       {isLoading && <LoaderCircle className="h-4 w-4 animate-spin" />}
       {buttonText}

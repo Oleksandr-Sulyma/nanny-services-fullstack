@@ -9,14 +9,16 @@ import {
   getIncomingAppointmentsRequest,
   updateAppointmentStatusRequest,
 } from "@/lib/appointmentsApi";
+import { useToast } from "@/components/providers/ToastProvider";
 
 export default function IncomingAppointmentsView() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [hasLoadError, setHasLoadError] = useState(false);
   const [updatingAppointmentId, setUpdatingAppointmentId] = useState<
     string | null
   >(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const loadAppointments = async () => {
@@ -24,17 +26,19 @@ export default function IncomingAppointmentsView() {
         const response = await getIncomingAppointmentsRequest();
         setAppointments(response.data);
       } catch (error) {
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : "Failed to load appointments",
-        );
+        setHasLoadError(true);
+        showToast({
+          variant: "error",
+          title: "Could not load appointments",
+          description:
+            error instanceof Error ? error.message : "Please try again.",
+        });
       } finally {
         setIsLoading(false);
       }
     };
     loadAppointments();
-  }, []);
+  }, [showToast]);
 
   const handleStatusChange = async (
     appointmentId: string,
@@ -42,7 +46,6 @@ export default function IncomingAppointmentsView() {
   ) => {
     try {
       setUpdatingAppointmentId(appointmentId);
-      setErrorMessage("");
       const response = await updateAppointmentStatusRequest(
         appointmentId,
         status,
@@ -53,11 +56,12 @@ export default function IncomingAppointmentsView() {
         ),
       );
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Failed to update appointment status",
-      );
+      showToast({
+        variant: "error",
+        title: "Could not update appointment",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
     } finally {
       setUpdatingAppointmentId(null);
     }
@@ -86,14 +90,19 @@ export default function IncomingAppointmentsView() {
   return (
     <div className="flex flex-col gap-6">
       {isLoading && <Spinner />}
-      {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
-      {!isLoading && !errorMessage && appointments.length === 0 && (
+      {!isLoading && hasLoadError && (
+        <EmptyState
+          title="Could not load appointments"
+          description="Please refresh the page or try again later."
+        />
+      )}
+      {!isLoading && !hasLoadError && appointments.length === 0 && (
         <EmptyState
           title="No incoming appointments yet"
           description="Appointment requests from parents will appear here."
         />
       )}
-      {!isLoading && !errorMessage && appointments.length > 0 && (
+      {!isLoading && !hasLoadError && appointments.length > 0 && (
         <ul className="flex flex-col gap-4 md:gap-6">
           {sortedAppointments.map((appointment) => (
             <AppointmentCard

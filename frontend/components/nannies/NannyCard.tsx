@@ -16,6 +16,7 @@ import { toggleFavoriteRequest } from "@/lib/favoritesApi";
 import Spinner from "@/components/ui/Spinner";
 import Modal from "@/components/ui/Modal";
 import AppointmentForm from "@/components/appointments/AppointmentForm";
+import { useToast } from "@/components/providers/ToastProvider";
 
 type NannyCardProps = {
   nanny: Nanny;
@@ -31,27 +32,43 @@ export default function NannyCard({ nanny }: NannyCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isReviewsLoading, setIsReviewsLoading] = useState(false);
-  const [reviewsError, setReviewsError] = useState<string | null>(null);
+  const [hasReviewsError, setHasReviewsError] = useState(false);
   const [isAppointmentOpen, setIsAppointmentOpen] = useState(false);
   const { isAuthenticated } = useAuthStore();
+  const { showToast } = useToast();
 
   const handleFavoriteClick = async () => {
     try {
       if (!isAuthenticated) {
-        alert("Please log in to add nannies to favorites");
+        showToast({
+          variant: "warning",
+          title: "Log in required",
+          description: "Please log in to add nannies to favorites.",
+        });
         return;
       }
       const { favorites } = await toggleFavoriteRequest(nanny.id);
       setFavorites(favorites);
+      showToast({
+        variant: "success",
+        title: isFavorite ? "Removed from favorites" : "Added to favorites",
+        description: isFavorite
+          ? `${nanny.name} was removed from your favorites.`
+          : `${nanny.name} was added to your favorites.`,
+      });
     } catch (error) {
       console.error(error);
-      alert("Failed to update favorites");
+      showToast({
+        variant: "error",
+        title: "Could not update favorites",
+        description: "Please try again.",
+      });
     }
   };
 
   const handleReadMore = async () => {
     setIsExpanded(true);
-    setReviewsError(null);
+    setHasReviewsError(false);
     if (reviews.length > 0) return;
     try {
       setIsReviewsLoading(true);
@@ -59,7 +76,13 @@ export default function NannyCard({ nanny }: NannyCardProps) {
       setReviews(response.data.reviews);
     } catch (error) {
       console.error(error);
-      setReviewsError("Failed to load reviews");
+      setHasReviewsError(true);
+      showToast({
+        variant: "error",
+        title: "Could not load reviews",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
     } finally {
       setIsReviewsLoading(false);
     }
@@ -67,7 +90,11 @@ export default function NannyCard({ nanny }: NannyCardProps) {
 
   const handleAppointmentClick = () => {
     if (!isAuthenticated) {
-      alert("Please log in to make an appointment");
+      showToast({
+        variant: "warning",
+        title: "Log in required",
+        description: "Please log in to make an appointment.",
+      });
       return;
     }
 
@@ -96,29 +123,40 @@ export default function NannyCard({ nanny }: NannyCardProps) {
           className={`h-6 w-6 ${isFavorite ? "fill-brand text-brand" : ""}`}
         />
       </button>
-      <div className="flex gap-4">
-        <div className="relative flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-[30px] border-2 border-brand-soft">
-          {hasAllowedAvatarUrl ? (
-            <Image
-              className="h-24 w-24 rounded-[15px] object-cover"
-              src={nanny.avatar_url}
-              alt={nanny.name}
-              width={96}
-              height={96}
-            />
-          ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded-[15px] bg-brand-soft text-3xl font-medium text-brand">
-              {nanny.name?.charAt(0).toUpperCase() || "?"}
-            </div>
-          )}
-          <span className="absolute right-3 top-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white">
-            <span className="h-[9px] w-[9px] rounded-full bg-[#38CD3E]" />
-          </span>
+      <div className="flex flex-col gap-4 lg:flex-row">
+        <div className="flex gap-4 pr-10 lg:block lg:pr-0">
+          <div className="relative flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-[30px] border-2 border-brand-soft">
+            {hasAllowedAvatarUrl ? (
+              <Image
+                className="h-24 w-24 rounded-[15px] object-cover"
+                src={nanny.avatar_url}
+                alt={nanny.name}
+                width={96}
+                height={96}
+              />
+            ) : (
+              <div className="flex h-24 w-24 items-center justify-center rounded-[15px] bg-brand-soft text-3xl font-medium text-brand">
+                {nanny.name?.charAt(0).toUpperCase() || "?"}
+              </div>
+            )}
+            <span className="absolute right-3 top-2 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white">
+              <span className="h-[9px] w-[9px] rounded-full bg-[#38CD3E]" />
+            </span>
+          </div>
+
+          <div className="min-w-0 flex-1 self-center lg:hidden">
+            <p className="mb-2 text-sm font-medium text-[var(--color-muted)]">
+              Nanny
+            </p>
+            <strong className="text-2xl font-medium leading-none text-foreground">
+              {nanny.name}
+            </strong>
+          </div>
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-            <div>
+            <div className="hidden lg:block">
               <p className="mb-2 text-sm font-medium text-[var(--color-muted)]">
                 Nanny
               </p>
@@ -172,18 +210,18 @@ export default function NannyCard({ nanny }: NannyCardProps) {
           )}
           {isExpanded && (
             <div className="mt-12 flex flex-col gap-12">
-              {reviewsError && (
+              {hasReviewsError && (
                 <p className="text-base text-[var(--color-muted)]">
-                  {reviewsError}
+                  Reviews could not be loaded.
                 </p>
               )}
               {isReviewsLoading && <Spinner label="Loading reviews..." />}
-              {!isReviewsLoading && !reviewsError && (
+              {!isReviewsLoading && !hasReviewsError && (
                 <>
                   <NannyReviews reviews={reviews} />
                   <Button
                     size="md"
-                    className="w-[215px] self-start"
+                    className="w-full self-start sm:w-[215px]"
                     onClick={handleAppointmentClick}
                   >
                     Make an appointment

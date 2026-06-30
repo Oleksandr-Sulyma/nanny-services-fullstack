@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { createAppointmentRequest } from "@/lib/appointmentsApi";
 import Button from "@/components/ui/Button";
 import { useAuthStore } from "@/store/useAuthStore";
 import type { Nanny } from "@/types/types";
+import { useToast } from "@/components/providers/ToastProvider";
 
 const phoneRegex =
   /^(\+?\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
@@ -42,6 +42,7 @@ export default function AppointmentForm({
   onSuccess,
 }: AppointmentFormProps) {
   const { user } = useAuthStore();
+  const { showToast } = useToast();
   const {
     register,
     handleSubmit,
@@ -58,11 +59,8 @@ export default function AppointmentForm({
       comment: "",
     },
   });
-  const [errorMessage, setErrorMessage] = useState<string | undefined>("");
 
   const onSubmit = async (data: AppointmentFormData) => {
-    setErrorMessage("");
-
     try {
       const comment = data.comment?.trim();
 
@@ -72,13 +70,19 @@ export default function AppointmentForm({
         comment: comment || undefined,
       });
 
+      showToast({
+        variant: "success",
+        title: "Appointment requested",
+        description: `Your request was sent to ${nanny.name}.`,
+      });
       onSuccess?.();
     } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Failed to create appointment");
-      }
+      showToast({
+        variant: "error",
+        title: "Could not create appointment",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
     }
   };
 
@@ -218,8 +222,6 @@ export default function AppointmentForm({
       >
         {isSubmitting ? "Sending..." : "Send"}
       </Button>
-
-      {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
     </form>
   );
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { createReviewRequest } from "@/lib/appointmentsApi";
 import Button from "@/components/ui/Button";
+import { useToast } from "@/components/providers/ToastProvider";
 
 const reviewSchema = z.object({
   rating: z
@@ -28,6 +28,7 @@ export default function ReviewForm({
   onSuccess,
   onCancel,
 }: ReviewFormProps) {
+  const { showToast } = useToast();
   const {
     register,
     handleSubmit,
@@ -35,19 +36,24 @@ export default function ReviewForm({
   } = useForm<ReviewFormData>({
     resolver: zodResolver(reviewSchema),
   });
-  const [errorMessage, setErrorMessage] = useState<string | undefined>("");
 
   const onSubmit = async (data: ReviewFormData) => {
-    setErrorMessage("");
-
     try {
       await createReviewRequest(appointmentId, data);
 
+      showToast({
+        variant: "success",
+        title: "Review submitted",
+        description: "Thank you for sharing your experience.",
+      });
       onSuccess?.();
     } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Failed to create review",
-      );
+      showToast({
+        variant: "error",
+        title: "Could not submit review",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
     }
   };
 
@@ -96,9 +102,6 @@ export default function ReviewForm({
         </Button>
       </div>
 
-      {errorMessage && (
-        <p className="mt-3 text-sm text-brand">{errorMessage}</p>
-      )}
     </form>
   );
 }

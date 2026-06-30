@@ -14,6 +14,7 @@ import { useFavoritesStore } from "@/store/useFavoritesStore";
 import { getFavoriteIds } from "@/lib/favorites";
 import { getAuthRedirectPath } from "@/lib/authRedirect";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/providers/ToastProvider";
 
 const userSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters long").trim(),
@@ -47,14 +48,12 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     },
   });
 
-  const [errorMessage, setErrorMessage] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const { setAuth } = useAuthStore();
+  const { showToast } = useToast();
   const router = useRouter();
 
   const onSubmit = async (data: UserFormData) => {
-    setErrorMessage("");
-
     try {
       await registerRequest(data);
       const loginResponse = await loginRequest({
@@ -76,11 +75,12 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         router.push(redirectPath);
       }
     } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Registration failed");
-      }
+      showToast({
+        variant: "error",
+        title: "Registration failed",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
+      });
     }
   };
 
@@ -153,8 +153,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       <Button type="submit" className="h-12 w-full" disabled={isSubmitting}>
         {isSubmitting ? "Creating account..." : "Sign Up"}
       </Button>
-
-      {errorMessage && <p className="text-sm text-brand">{errorMessage}</p>}
     </form>
   );
 }

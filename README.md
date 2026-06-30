@@ -1,46 +1,69 @@
 # Nanny Services
 
-Fullstack platform for finding and booking nanny services. Parents can browse
-nanny profiles, filter the catalog by region, manage favorites, create
-appointments, and leave reviews after completed appointments. Nannies can
-maintain their profiles and manage incoming requests.
+Fullstack platform for finding, booking, and managing nanny services. Parents
+can browse nanny profiles, manage favorites, create appointments, complete
+meetings, and leave reviews. Nannies can maintain their profiles, manage
+incoming appointment requests, and view parent feedback.
 
 ## Project Status
 
-The backend MVP is implemented. The frontend is currently a Next.js starter and
-will be developed against the REST API.
+The MVP is implemented end to end:
+
+- Express REST API with MongoDB persistence
+- Next.js client application
+- Role-based parent/nanny flows
+- Appointment lifecycle and review flow
+- Responsive UI based on the Nanny Services design
+
+Google authentication is not included in the current scope and can be added as a
+future improvement.
 
 ## Features
 
-- Registration and login with JWT authentication
+- Registration, login, logout, and JWT cookie authentication
 - Parent and nanny roles
-- Public nanny catalog with pagination
-- Filtering by region and price
-- Sorting by name, rating, and price
-- Private nanny profile editing
-- Persistent favorites stored in MongoDB
-- Appointment lifecycle: pending, accepted, rejected, completed, cancelled
+- Protected routes by role
+- Public nanny catalog with pagination, sorting, and region filtering
+- Favorites stored in MongoDB and synchronized after login
+- Parent profile editing with avatar upload
+- Nanny profile editing with completion status
+- Cloudinary avatar uploads
+- Appointment booking from nanny cards
+- Incoming appointment management for nannies
+- Parent appointment management
+- Appointment statuses: pending, accepted, rejected, completed, cancelled
 - Reviews for completed appointments
 - Automatic nanny rating recalculation
+- Reviews visible in nanny profile and completed incoming appointments
+- Toast notifications for success and server/network errors
+- Responsive layouts for desktop, tablet, and mobile
 
 ## Tech Stack
 
 ### Frontend
 
-- Next.js with App Router
+- Next.js 16 with App Router
+- React 19
 - TypeScript
-- Tailwind CSS
+- Tailwind CSS 4
 - Zustand
+- React Hook Form
+- Zod
+- Radix Dialog
+- Lucide React
 
 ### Backend
 
 - Node.js
-- Express
+- Express 5
 - MongoDB Atlas
 - Mongoose
 - JWT
 - bcrypt
 - Celebrate and Joi
+- Multer
+- Cloudinary
+- Vitest, Supertest, and mongodb-memory-server
 
 ## Repository Structure
 
@@ -68,6 +91,9 @@ MONGO_URL=mongodb+srv://...
 JWT_SECRET=your-secret
 NODE_ENV=development
 JWT_EXPIRES_IN=1h
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
 ```
 
 Run the API:
@@ -76,9 +102,13 @@ Run the API:
 npm run dev
 ```
 
-The server will be available at `http://localhost:5000`.
+The server will be available at:
 
-Run the automated backend tests:
+```text
+http://localhost:5000
+```
+
+Run backend tests:
 
 ```bash
 npm test
@@ -93,27 +123,43 @@ npm run test:watch
 The integration tests use an isolated in-memory MongoDB instance. They do not
 modify MongoDB Atlas data.
 
-### MongoDB Indexes
-
-The database uses these unique indexes:
-
-```text
-nannies.userId
-reviews.appointmentId
-```
-
-The `reviews.appointmentId` index is partial so that imported seed reviews
-without an appointment reference remain valid.
-
 ### Frontend
 
 ```bash
 cd frontend
 npm install
+```
+
+Create `frontend/.env.local`:
+
+```env
+API_URL=http://localhost:5000/api
+```
+
+For the deployed backend, use:
+
+```env
+API_URL=https://nanny-services-api.onrender.com/api
+```
+
+Run the client:
+
+```bash
 npm run dev
 ```
 
-The client will be available at `http://localhost:3000`.
+The client will be available at:
+
+```text
+http://localhost:3000
+```
+
+Run frontend checks:
+
+```bash
+npm run lint
+npm run build
+```
 
 ## API Documentation
 
@@ -126,9 +172,37 @@ Interactive Scalar API documentation is available while the backend is running:
 http://localhost:5000/api-docs
 ```
 
+## MongoDB Indexes
+
+The database uses these unique indexes:
+
+```text
+users.email
+nannies.userId
+reviews.appointmentId
+```
+
+The `reviews.appointmentId` index is partial so imported seed reviews without
+an appointment reference remain valid.
+
+## Quality Checks
+
+Before pushing a release-sized change, run:
+
+```bash
+cd backend
+npm test
+```
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
 ## Design
 
-The UI will be based on the
+The UI is based on the
 [Nanny Services Figma design](https://www.figma.com/design/rfRPvTjaBi3oa80xNtF2i3/Nanny-Sevices--Copy-?node-id=0-1&m=dev).
 
 ## Deployment
@@ -137,4 +211,4 @@ The UI will be based on the
 - Interactive API documentation: [Scalar API Reference](https://nanny-services-api.onrender.com/api-docs)
 - OpenAPI specification: [openapi.yaml](https://nanny-services-api.onrender.com/openapi.yaml)
 - Database: MongoDB Atlas
-- Frontend: Vercel deployment planned
+- Frontend: Vercel-ready Next.js application
