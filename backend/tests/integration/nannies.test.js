@@ -87,6 +87,35 @@ describe("GET /api/nannies", () => {
   });
 });
 
+describe("GET /api/nannies/:nannyId", () => {
+  it("returns a completed nanny profile with reviews", async () => {
+    const nanny = await Nanny.create({
+      userId: new mongoose.Types.ObjectId(),
+      name: "Visible Nanny",
+      isProfileComplete: true,
+    });
+
+    const response = await request(app).get(`/api/nannies/${nanny.id}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.nanny.name).toBe("Visible Nanny");
+    expect(response.body.data.reviews).toEqual([]);
+  });
+
+  it("does not return a draft nanny profile", async () => {
+    const nanny = await Nanny.create({
+      userId: new mongoose.Types.ObjectId(),
+      name: "Draft Nanny",
+      isProfileComplete: false,
+    });
+
+    const response = await request(app).get(`/api/nannies/${nanny.id}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Nanny not found");
+  });
+});
+
 const createCompletedNanniesWithPrices = () =>
   Nanny.create([
     {

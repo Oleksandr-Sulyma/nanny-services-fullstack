@@ -81,6 +81,25 @@ describe("appointment lifecycle", () => {
     expect(reviewResponse.body.data.review.rating).toBe(5);
     expect(reviewResponse.body.data.nannyRating).toBe(5);
 
+    const parentAppointmentsResponse = await request(app)
+      .get("/api/appointments/my")
+      .set("Authorization", `Bearer ${parentToken}`);
+
+    expect(parentAppointmentsResponse.status).toBe(200);
+    expect(parentAppointmentsResponse.body.data).toHaveLength(1);
+    expect(parentAppointmentsResponse.body.data[0].hasReview).toBe(true);
+
+    const incomingAppointmentsResponse = await request(app)
+      .get("/api/appointments/incoming")
+      .set("Authorization", `Bearer ${nannyToken}`);
+
+    expect(incomingAppointmentsResponse.status).toBe(200);
+    expect(incomingAppointmentsResponse.body.data).toHaveLength(1);
+    expect(incomingAppointmentsResponse.body.data[0].review.rating).toBe(5);
+    expect(incomingAppointmentsResponse.body.data[0].review.comment).toBe(
+      "The nanny was attentive, punctual, and kind.",
+    );
+
     const duplicateReviewResponse = await request(app)
       .post(`/api/appointments/${appointmentId}/reviews`)
       .set("Authorization", `Bearer ${parentToken}`)
@@ -90,6 +109,34 @@ describe("appointment lifecycle", () => {
     expect(duplicateReviewResponse.body.message).toBe(
       "Review for this appointment already exists",
     );
+  });
+
+  it("allows a parent to cancel a pending appointment", async () => {
+    const parentToken = await registerAndLogin({
+      name: "Test Parent",
+      email: "parent@test.com",
+      password: "StrongPass123!",
+      role: "parent",
+    });
+    const nannyToken = await registerAndLogin({
+      name: "Test Nanny",
+      email: "nanny@test.com",
+      password: "StrongPass123!",
+      role: "nanny",
+    });
+    const nannyId = await completeNannyProfile(nannyToken);
+
+    const createResponse = await request(app)
+      .post(`/api/nannies/${nannyId}/appointments`)
+      .set("Authorization", `Bearer ${parentToken}`)
+      .send(createAppointmentBody());
+
+    const cancelResponse = await request(app)
+      .patch(`/api/appointments/${createResponse.body.data.id}/cancel`)
+      .set("Authorization", `Bearer ${parentToken}`);
+
+    expect(cancelResponse.status).toBe(200);
+    expect(cancelResponse.body.data.status).toBe("cancelled");
   });
 });
 

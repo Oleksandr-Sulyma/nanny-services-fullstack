@@ -13,8 +13,8 @@ export const updatePasswordSchema = {
 
 export const updateProfileSchema = {
   [Segments.BODY]: Joi.object({
-    name: nameField,
-    email: emailField,
+    name: nameField.optional(),
+    email: emailField.optional(),
     avatar: Joi.string().uri().allow("").messages({
       "string.uri": "Avatar must be a valid URL",
     }),

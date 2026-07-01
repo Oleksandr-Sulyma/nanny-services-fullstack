@@ -14,6 +14,7 @@ tags:
   - name: Health
   - name: Authentication
   - name: Users
+  - name: Uploads
   - name: Nannies
   - name: Appointments
 paths:
@@ -88,7 +89,8 @@ paths:
   /users/avatar:
     patch:
       tags: [Users]
-      summary: Update the current user avatar
+      summary: Update the current user avatar URL
+      description: Legacy JSON endpoint for saving an already uploaded avatar URL.
       security:
         - bearerAuth: []
       requestBody:
@@ -106,8 +108,36 @@ paths:
       responses:
         "200":
           description: Avatar updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /users/profile:
+    patch:
+      tags: [Users]
+      summary: Update the current user profile
+      description: If the current user is a nanny, changed name and avatar are synchronized to the nanny profile.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserProfileRequest"
+      responses:
+        "200":
+          description: User profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /users/update-password:
     patch:
       tags: [Users]
@@ -153,6 +183,34 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+  /uploads/avatar:
+    post:
+      tags: [Uploads]
+      summary: Upload an avatar image to Cloudinary
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [avatar]
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Avatar uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadAvatarResponse"
+        "400":
+          description: Image file is required
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /nannies:
     get:
       tags: [Nannies]
@@ -191,15 +249,23 @@ paths:
       responses:
         "200":
           description: Paginated nanny profiles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NanniesPageResponse"
   /nannies/me:
     get:
       tags: [Nannies]
-      summary: Get the current nanny profile
+      summary: Get the current nanny profile and reviews
       security:
         - bearerAuth: []
       responses:
         "200":
           description: Nanny profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NannyDetailsResponse"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -218,6 +284,10 @@ paths:
       responses:
         "200":
           description: Nanny profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NannyProfileResponse"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -231,6 +301,10 @@ paths:
       responses:
         "200":
           description: Nanny details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NannyDetailsResponse"
         "404":
           $ref: "#/components/responses/NotFound"
   /nannies/{nannyId}/appointments:
@@ -250,6 +324,10 @@ paths:
       responses:
         "201":
           description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentResponse"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -263,6 +341,10 @@ paths:
       responses:
         "200":
           description: Parent appointments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentsResponse"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -276,6 +358,10 @@ paths:
       responses:
         "200":
           description: Incoming appointments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentsResponse"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -302,6 +388,10 @@ paths:
       responses:
         "200":
           description: Appointment status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentResponse"
         "403":
           $ref: "#/components/responses/Forbidden"
   /appointments/{appointmentId}/complete:
@@ -315,6 +405,10 @@ paths:
       responses:
         "200":
           description: Appointment completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentResponse"
         "403":
           $ref: "#/components/responses/Forbidden"
   /appointments/{appointmentId}/cancel:
@@ -328,6 +422,10 @@ paths:
       responses:
         "200":
           description: Appointment cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentResponse"
         "403":
           $ref: "#/components/responses/Forbidden"
   /appointments/{appointmentId}/reviews:
@@ -347,6 +445,10 @@ paths:
       responses:
         "201":
           description: Review created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateReviewResponse"
         "403":
           $ref: "#/components/responses/Forbidden"
         "409":
@@ -403,6 +505,70 @@ components:
         password:
           type: string
           example: StrongPass123!
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 6a04f0b2f348224190b65417
+        name:
+          type: string
+          example: Oleksandr Sulyma
+        email:
+          type: string
+          format: email
+          example: parent@example.com
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+          example: https://res.cloudinary.com/demo/image/upload/avatar.webp
+        role:
+          type: string
+          enum: [parent, nanny]
+        favorites:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - $ref: "#/components/schemas/Nanny"
+    UserResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: User profile updated successfully
+        data:
+          $ref: "#/components/schemas/User"
+    UpdateUserProfileRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 3
+          example: Oleksandr Sulyma
+        email:
+          type: string
+          format: email
+          example: parent@example.com
+        avatar:
+          type: string
+          format: uri
+          example: https://res.cloudinary.com/demo/image/upload/avatar.webp
+    UploadAvatarResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Avatar uploaded successfully
+        data:
+          type: object
+          properties:
+            url:
+              type: string
+              format: uri
+              example: https://res.cloudinary.com/demo/image/upload/avatar.webp
     NannyIdRequest:
       type: object
       required: [nannyId]
@@ -445,6 +611,96 @@ components:
           items:
             type: string
           example: [attentive, patient, creative]
+    Nanny:
+      allOf:
+        - $ref: "#/components/schemas/UpdateNannyProfileRequest"
+        - type: object
+          properties:
+            id:
+              type: string
+              example: 0cef122f685b662efedcab95
+            userId:
+              type: string
+              example: 6c10bcf83ee896d956f648dc
+            name:
+              type: string
+              example: Anastasiia Dziuba
+            rating:
+              type: number
+              example: 4.85
+            isProfileComplete:
+              type: boolean
+              example: true
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+          example: f31f07f3afaf5402fe332b24
+        authorId:
+          oneOf:
+            - type: string
+            - type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                  example: Olena Petrova
+                avatar:
+                  type: string
+                  nullable: true
+        nannyId:
+          type: string
+          example: 0cef122f685b662efedcab95
+        appointmentId:
+          type: string
+          example: 6a04f135f348224190b65418
+        rating:
+          type: number
+          example: 5
+        comment:
+          type: string
+          example: The nanny was attentive, punctual, and kind.
+    NannyDetailsResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            nanny:
+              $ref: "#/components/schemas/Nanny"
+            reviews:
+              type: array
+              items:
+                $ref: "#/components/schemas/Review"
+    NannyProfileResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Profile updated successfully
+        data:
+          $ref: "#/components/schemas/Nanny"
+    NanniesPageResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        perPage:
+          type: integer
+          example: 3
+        totalItems:
+          type: integer
+          example: 12
+        totalPages:
+          type: integer
+          example: 4
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Nanny"
     Location:
       type: object
       required: [country, region, settlement]
@@ -485,6 +741,79 @@ components:
         comment:
           type: string
           example: We would like to arrange a meeting.
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 6a04f135f348224190b65418
+        parentId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/User"
+        nannyId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Nanny"
+        parentName:
+          type: string
+          example: Oleksandr Sulyma
+        email:
+          type: string
+          format: email
+          example: parent@example.com
+        address:
+          type: string
+          example: Kyiv, Khreshchatyk Street 12
+        phone:
+          type: string
+          example: "+380671234567"
+        childAge:
+          type: string
+          example: 5 years
+        scheduledAt:
+          type: string
+          format: date-time
+          example: "2026-06-15T09:30:00.000Z"
+        comment:
+          type: string
+          example: We would like to arrange a meeting.
+        status:
+          type: string
+          enum: [pending, accepted, rejected, completed, cancelled]
+        hasReview:
+          type: boolean
+          description: Present in parent appointment responses.
+          example: false
+        review:
+          nullable: true
+          description: Present in incoming nanny appointment responses when a parent has submitted feedback.
+          type: object
+          properties:
+            rating:
+              type: number
+              example: 5
+            comment:
+              type: string
+              example: The nanny was attentive, punctual, and kind.
+    AppointmentResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Appointment updated successfully
+        data:
+          $ref: "#/components/schemas/Appointment"
+    AppointmentsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Your appointments
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Appointment"
     CreateReviewRequest:
       type: object
       required: [rating, comment]
@@ -498,6 +827,20 @@ components:
           type: string
           minLength: 3
           example: The nanny was attentive, punctual, and kind.
+    CreateReviewResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Review created successfully
+        data:
+          type: object
+          properties:
+            review:
+              $ref: "#/components/schemas/Review"
+            nannyRating:
+              type: number
+              example: 4.85
   responses:
     Unauthorized:
       description: Authentication required or token is invalid

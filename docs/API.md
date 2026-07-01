@@ -89,6 +89,7 @@ PATCH /users/avatar
 ```
 
 Authentication required.
+Legacy JSON endpoint for saving an already uploaded avatar URL.
 
 Body:
 
@@ -97,6 +98,27 @@ Body:
   "avatar": "https://example.com/avatar.jpg"
 }
 ```
+
+### Update User Profile
+
+```http
+PATCH /users/profile
+```
+
+Authentication required.
+
+Body may contain one or more fields:
+
+```json
+{
+  "name": "Oleksandr Sulyma",
+  "email": "parent@example.com",
+  "avatar": "https://res.cloudinary.com/demo/image/upload/avatar.webp"
+}
+```
+
+If the current user has the `nanny` role, changed `name` and `avatar` are also
+synchronized to the related nanny profile.
 
 ### Update Password
 
@@ -132,6 +154,35 @@ Body:
 ```
 
 Calling the route again with the same ID removes the nanny from favorites.
+
+## Uploads
+
+### Upload Avatar File
+
+```http
+POST /uploads/avatar
+```
+
+Authentication required.
+
+Content type: `multipart/form-data`.
+
+Form fields:
+
+| Field | Type | Required |
+| --- | --- | --- |
+| `avatar` | image file | yes |
+
+Response:
+
+```json
+{
+  "message": "Avatar uploaded successfully",
+  "data": {
+    "url": "https://res.cloudinary.com/demo/image/upload/avatar.webp"
+  }
+}
+```
 
 ## Nannies
 
@@ -172,6 +223,7 @@ GET /nannies/me
 ```
 
 Authentication required. Role: `nanny`.
+Returns the current nanny profile and its reviews sorted from newest to oldest.
 
 ### Update Own Nanny Profile
 
@@ -236,6 +288,8 @@ GET /appointments/my
 ```
 
 Authentication required. Role: `parent`.
+Each appointment includes `hasReview`, which is `true` when the parent has
+already submitted a review for that appointment.
 
 ### Get Incoming Nanny Appointments
 
@@ -244,6 +298,7 @@ GET /appointments/incoming
 ```
 
 Authentication required. Role: `nanny`.
+Completed appointments include `review` when the parent has submitted feedback.
 
 ### Accept or Reject Appointment
 

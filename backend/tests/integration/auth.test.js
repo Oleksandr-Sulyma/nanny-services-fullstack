@@ -115,6 +115,24 @@ describe("POST /api/auth/login", () => {
   });
 });
 
+describe("POST /api/auth/logout", () => {
+  it("logs out an authenticated user", async () => {
+    await registerParent();
+
+    const loginResponse = await request(app).post("/api/auth/login").send({
+      email: "parent@test.com",
+      password: "StrongPass123!",
+    });
+
+    const response = await request(app)
+      .post("/api/auth/logout")
+      .set("Authorization", `Bearer ${loginResponse.body.data.token}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.message).toBe("User logged out successfully");
+  });
+});
+
 const registerParent = () =>
   request(app).post("/api/auth/register").send({
     name: "Test Parent",

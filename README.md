@@ -266,7 +266,9 @@ http://localhost:5000/api-docs
 | Method | Endpoint | Description |
 | --- | --- | --- |
 | `GET` | `/api/users/me` | Get current user |
+| `PATCH` | `/api/users/avatar` | Update avatar URL |
 | `PATCH` | `/api/users/profile` | Update name, email, or avatar |
+| `PATCH` | `/api/users/update-password` | Update password |
 | `POST` | `/api/users/favorites` | Toggle nanny favorite |
 
 ### Nannies
@@ -438,6 +440,10 @@ npm run build
 
 The integration tests use an isolated in-memory MongoDB instance. They do not
 modify MongoDB Atlas data.
+
+Current backend coverage includes 7 test files and 32 tests across auth, users,
+uploads, nannies, nanny profile access, appointments, reviews, and health
+checks.
 
 ## Design
 
