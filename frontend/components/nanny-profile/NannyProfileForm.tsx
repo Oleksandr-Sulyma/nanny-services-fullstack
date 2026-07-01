@@ -21,13 +21,6 @@ const getAllowedBirthDate = (yearsAgo: number): Date => {
 };
 
 const nannyProfileSchema = z.object({
-  avatar_url: z
-    .string()
-    .trim()
-    .refine((value) => value === "" || z.url().safeParse(value).success, {
-      message: "Avatar must be a valid URL",
-    }),
-
   birthday: z
     .string()
     .trim()
