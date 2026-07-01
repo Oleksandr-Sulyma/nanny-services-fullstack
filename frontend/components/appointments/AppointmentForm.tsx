@@ -10,8 +10,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import type { Nanny } from "@/types/types";
 import { useToast } from "@/components/providers/ToastProvider";
 
-const phoneRegex =
-  /^(\+?\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+const phoneRegex = /^\+380\d{9}$/;
 
 const appointmentSchema = z.object({
   parentName: z.string().min(2, "Name is required").trim(),
@@ -23,7 +22,7 @@ const appointmentSchema = z.object({
     .min(1, "Phone number is required")
     .regex(
       phoneRegex,
-      "Please enter a valid phone number (e.g., +380XXXXXXXXX)",
+      "Phone number must start with +380 and contain 9 digits after it (e.g., +380671234567)",
     ),
   childAge: z.string().min(1, "Child age is required").trim(),
   scheduledAt: z.string().min(1, "Meeting time is required"),

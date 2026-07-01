@@ -109,12 +109,19 @@ export const updateProfile = catchAsync(async (req, res) => {
 
   await user.save();
 
-  if (user.role === "nanny" && avatar !== undefined) {
-    await Nanny.findOneAndUpdate(
-      { userId: user._id },
-      { avatar_url: avatar },
-      { returnDocument: "after" },
-    );
+  if (user.role === "nanny") {
+    const nannyProfileUpdates = {};
+
+    if (name !== undefined) nannyProfileUpdates.name = name;
+    if (avatar !== undefined) nannyProfileUpdates.avatar_url = avatar;
+
+    if (Object.keys(nannyProfileUpdates).length > 0) {
+      await Nanny.findOneAndUpdate(
+        { userId: user._id },
+        nannyProfileUpdates,
+        { returnDocument: "after" },
+      );
+    }
   }
 
   res.status(200).json({
