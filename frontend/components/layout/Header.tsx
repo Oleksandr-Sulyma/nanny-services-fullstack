@@ -78,7 +78,9 @@ export default function Header() {
     <>
       <header
         className={`text-white ${
-          isHomeActive ? "absolute left-0 top-0 z-30 w-full" : "bg-brand"
+          isHomeActive
+            ? "fixed left-0 top-0 z-30 w-full"
+            : "sticky top-0 z-30 bg-brand"
         }`}
       >
         <div className="app-container flex h-22 items-center justify-between">

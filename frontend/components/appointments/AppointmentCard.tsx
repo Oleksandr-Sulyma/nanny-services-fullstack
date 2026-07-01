@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import type { Appointment } from "@/types/types";
 import ProfileField from "@/components/ui/ProfileField";
 import { formatDateTime } from "@/lib/date";
 import Button from "@/components/ui/Button";
 import StatusBadge from "@/components/ui/StatusBadge";
+import Modal from "@/components/ui/Modal";
 
 type AppointmentCardProps = {
   appointment: Appointment;
@@ -19,15 +21,15 @@ export default function AppointmentCard({
   onReject,
   isUpdating,
 }: AppointmentCardProps) {
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const scheduledAt = formatDateTime(appointment.scheduledAt);
 
   const handleRejectClick = () => {
-    const shouldReject = window.confirm(
-      "Are you sure you want to reject this appointment?",
-    );
+    setIsRejectModalOpen(true);
+  };
 
-    if (!shouldReject) return;
-
+  const handleRejectConfirm = () => {
+    setIsRejectModalOpen(false);
     onReject();
   };
 
@@ -88,6 +90,31 @@ export default function AppointmentCard({
           </Button>
         </div>
       )}
+
+      <Modal
+        isOpen={isRejectModalOpen}
+        onOpenChange={setIsRejectModalOpen}
+        title="Reject appointment?"
+        description="This appointment request will be rejected and the parent will no longer wait for your confirmation."
+      >
+        <div className="flex flex-wrap gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setIsRejectModalOpen(false)}
+            disabled={isUpdating}
+          >
+            Keep request
+          </Button>
+          <Button
+            type="button"
+            onClick={handleRejectConfirm}
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Updating..." : "Reject"}
+          </Button>
+        </div>
+      </Modal>
     </li>
   );
 }

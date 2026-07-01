@@ -12,6 +12,35 @@ import { useToast } from "@/components/providers/ToastProvider";
 
 const phoneRegex = /^\+380\d{9}$/;
 
+const normalizePhone = (value: string): string => {
+  if (!value.trim()) return "";
+
+  const digits = value.replace(/\D/g, "");
+  const nationalNumber = digits.startsWith("380")
+    ? digits.slice(3)
+    : digits.startsWith("0")
+      ? digits.slice(1)
+      : digits;
+
+  return `+380${nationalNumber.slice(0, 9)}`;
+};
+
+const formatPhoneInput = (value: string): string => {
+  const normalizedPhone = normalizePhone(value);
+
+  if (!normalizedPhone) return "+380 ";
+
+  const nationalNumber = normalizedPhone.slice(4);
+  const phoneParts = [
+    nationalNumber.slice(0, 2),
+    nationalNumber.slice(2, 5),
+    nationalNumber.slice(5, 7),
+    nationalNumber.slice(7, 9),
+  ].filter(Boolean);
+
+  return ["+380", ...phoneParts].join(" ");
+};
+
 const appointmentSchema = z.object({
   parentName: z.string().min(2, "Name is required").trim(),
   email: z.email("Please enter a valid email address").trim().toLowerCase(),
@@ -19,10 +48,15 @@ const appointmentSchema = z.object({
   phone: z
     .string()
     .trim()
-    .min(1, "Phone number is required")
-    .regex(
-      phoneRegex,
-      "Phone number must start with +380 and contain 9 digits after it (e.g., +380671234567)",
+    .transform(normalizePhone)
+    .pipe(
+      z
+        .string()
+        .min(1, "Phone number is required")
+        .regex(
+          phoneRegex,
+          "Phone number must start with +380 and contain 9 digits after it (e.g., +380 67 123 45 67)",
+        ),
     ),
   childAge: z.string().min(1, "Child age is required").trim(),
   scheduledAt: z.string().min(1, "Meeting time is required"),
@@ -45,6 +79,7 @@ export default function AppointmentForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<AppointmentFormData>({
     resolver: zodResolver(appointmentSchema),
@@ -52,7 +87,7 @@ export default function AppointmentForm({
       parentName: user?.name ?? "",
       email: user?.email ?? "",
       address: "",
-      phone: "",
+      phone: "+380 ",
       childAge: "",
       scheduledAt: "",
       comment: "",
@@ -100,6 +135,8 @@ export default function AppointmentForm({
     }
   })();
 
+  const phoneRegistration = register("phone");
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex items-center gap-3">
@@ -139,9 +176,19 @@ export default function AppointmentForm({
           <input
             id="phone"
             type="tel"
+            inputMode="tel"
             autoComplete="tel"
-            placeholder="+380"
-            {...register("phone")}
+            placeholder="+380 67 123 45 67"
+            maxLength={17}
+            {...phoneRegistration}
+            onChange={(event) => {
+              const formattedPhone = formatPhoneInput(event.target.value);
+
+              setValue("phone", formattedPhone, {
+                shouldDirty: true,
+                shouldValidate: Boolean(errors.phone),
+              });
+            }}
             className={inputClassName}
           />
           {errors.phone && (

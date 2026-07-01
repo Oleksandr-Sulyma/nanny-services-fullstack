@@ -23,6 +23,7 @@ export default function MyAppointmentCard({
   isUpdating,
 }: AppointmentCardProps) {
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReviewSubmitted, setIsReviewSubmitted] = useState(false);
   const hasReview = appointment.hasReview || isReviewSubmitted;
 
@@ -42,12 +43,11 @@ export default function MyAppointmentCard({
   const scheduledAt = formatDateTime(appointment.scheduledAt);
 
   const handleCancelClick = () => {
-    const shouldCancel = window.confirm(
-      "Are you sure you want to cancel this appointment?",
-    );
+    setIsCancelModalOpen(true);
+  };
 
-    if (!shouldCancel) return;
-
+  const handleCancelConfirm = () => {
+    setIsCancelModalOpen(false);
     onCancel();
   };
 
@@ -125,6 +125,31 @@ export default function MyAppointmentCard({
             setIsReviewOpen(false);
           }}
         />
+      </Modal>
+
+      <Modal
+        isOpen={isCancelModalOpen}
+        onOpenChange={setIsCancelModalOpen}
+        title="Cancel appointment?"
+        description="This appointment will be cancelled. You can create a new request later if needed."
+      >
+        <div className="flex flex-wrap gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setIsCancelModalOpen(false)}
+            disabled={isUpdating}
+          >
+            Keep appointment
+          </Button>
+          <Button
+            type="button"
+            onClick={handleCancelConfirm}
+            disabled={isUpdating}
+          >
+            {isUpdating ? "Cancelling..." : "Cancel appointment"}
+          </Button>
+        </div>
       </Modal>
     </li>
   );
